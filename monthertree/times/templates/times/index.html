@@ -1,0 +1,14 @@
+{% if latest_time_list %}
+	<div class="time">
+		<ul class="time_list">
+		{% for time in latest_time_list %}
+			<ul class="">
+				<li><p>{{ time.title }}</p></li>
+			</ul>	
+		{% endfor %}
+		</ul>
+	</div>
+
+{% else %}
+	<p> No time are available.</p>
+{% endif %}
