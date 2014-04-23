@@ -10,8 +10,8 @@ class Time(models.Model):
 	photo = models.ImageField(upload_to='Photo')
 	audio = models.FileField(upload_to='Audio')
 	status = models.CharField(max_length=50)
-	deleted = models.CharField(max_length=50)
-	updated = models.CharField(max_length=50)
+	deleted = models.BooleanField()
+	updated = models.DateTimeField('update time')
 
 
 	def __unicode__(self):

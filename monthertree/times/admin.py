@@ -9,7 +9,10 @@ class TimeAdmin(admin.ModelAdmin):
 		('Create Date', {'fields':['create_date']}),
 		('Create Time', {'fields':['create_time']}),
 		('Content Type', {'fields':['content_type']}),
-		# (None, {'fields':['photo', 'audio']}),
+		#(None, {'fields':['photo', 'audio']}),
+		#('Status', {'fields': ['status']}),
+		('Deleted', {'fields': ['deleted']}),
+		('Updated', {'fields': ['updated']}),
 	]
 
 admin.site.register(Time, TimeAdmin)
