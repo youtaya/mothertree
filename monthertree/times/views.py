@@ -5,6 +5,7 @@ import json
 import time as _time
 from datetime import datetime
 from models import Time
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 import logging
 
@@ -182,6 +183,34 @@ def sync(request):
 	# update latest records
 	#HttpResponse.status(200)
 	return HttpResponse(toJSON(updated_records))
+
+def resetdb(request):
+	records = Time.objects.all()
+	for record in records:
+		record.delete()
+
+	record1 = Time(handle='temp',
+		title="test1",
+		content="what's thsis",
+		create_date=timezone.now(),
+		create_time=timezone.now(),
+		content_type=1,
+		status="now ok",
+		deleted='False')
+	record1.save()
+
+	record2 = Time(handle='temp',
+		title="test2",
+		content="time filping",
+		create_date=timezone.now(),
+		create_time=timezone.now(),
+		content_type=1,
+		status="we are still here",
+		deleted='False')
+	record2.save()
+
+	return HttpResponse(200)
+
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""

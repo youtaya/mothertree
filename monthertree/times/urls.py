@@ -8,4 +8,5 @@ urlpatterns = patterns('',
 
 	url(r'^$', views.index, name='index'),
 	url(r'^sync/$', views.sync, name="sync"),
+	url(r'^reset/$', views.resetdb, name="reset"),
 )
