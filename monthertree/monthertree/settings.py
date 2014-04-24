@@ -151,3 +151,26 @@ USE_L10N = True
 USE_TZ = True
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(PROJECT_DIR, "debug.log"),
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'times': {
+            'handlers': ['file'],
+            'level': 'DEBUG'
+        },
+    },
+}

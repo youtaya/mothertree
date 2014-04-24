@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from models import Time
+from django.utils import timezone
 import json
 import logging
 
@@ -11,7 +12,7 @@ class syncTests(TestCase):
 		records = Time.objects.all()
 		self.assertEqual(len(records), 2)
 		self.assertEqual(len(records), 5)
-		
+
 	def test_sync_with_user(self):
 		python_dict = {
 			"username": "temp",
@@ -19,18 +20,19 @@ class syncTests(TestCase):
 				"handle": "temp",
 				"title": "hello, world",
 				"content": "test for test",
-				"create_date": "2014-4-24",
-				"create_time": "20:11:3421",
+				"create_date": timezone.now(),
+				"create_time": timezone.now(),
 				"content_type": 1,
 				"photo": "",
 				"audio": "",
 			},
-			"host_url": "abc",
+			"host_url": "abc"
 		}
-		response = self.client.post(reverse('times:sync'),
-			#json.dumps(python_dict),
-			python_dict,
-			content_type="application/xhtml")
+		response = self.client.post(reverse('times:sync') 
+			,python_dict)
+			#content_type="application/json")
+		records = Time.objects.all()
+		self.assertEqual(len(records), 1)
 		self.assertEqual(response.status_code, 200)
-		self.assertEqual(response.status_code, 301)
+		
 
