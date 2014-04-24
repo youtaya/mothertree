@@ -12,7 +12,7 @@ class TimeAdmin(admin.ModelAdmin):
 		#(None, {'fields':['photo', 'audio']}),
 		#('Status', {'fields': ['status']}),
 		('Deleted', {'fields': ['deleted']}),
-		('Updated', {'fields': ['updated']}),
+		#('Updated', {'fields': ['updated']}),
 	]
 
 admin.site.register(Time, TimeAdmin)
