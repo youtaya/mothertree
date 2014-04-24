@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from django.utils import simplejson
+import json
 import time as _time
 from datetime import datetime
 from models import Time
@@ -44,7 +44,7 @@ def process_client_changes(request_url, records_buffer, updated_records):
 	# build an array of generic objects containing contact data,
 	# using the Django built-in JSON parser
 	logging.info('Uploaded records buffer: ' + records_buffer)
-	json_list = simplejson.loads(records_buffer)
+	json_list = json.loads(records_buffer)
 	logging.info('Client-side updates: ' + str(len(json_list)))
 
 	# keep track of the number of new records the client sent to us,
@@ -168,24 +168,24 @@ def sync(request):
 	username = 'temp'
 	# upload client dirty records
 	updated_records = []
-
-	client_buffer = self.request.get('records')
-	request_url = self.request.host_url
+	logging.info("request: "+str(request.POST.get('username')))
+	client_buffer = request.POST.get('records')
+	request_url = request.POST.get('host_url')
 
 	if((client_buffer != None) and (client_buffer != '')):
 		process_client_changes(request_url, client_buffer, updated_records)
 	
 	# add any records on the server-side
-	client_state = self.request.get('syncstate')
+	client_state = request.POST.get('syncstate')
 	get_updated_records(request_url, client_state, updated_records)
 
 	# update latest records
-	self.response.status(200)
-	self.response.out.write(toJSON(updated_records))
+	#HttpResponse.status(200)
+	return HttpResponse(toJSON(updated_records))
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return simplejson.dumps(object)
+	return json.dumps(object)
 
 class UpdatedRecordData(object):
 	"""Holds data for user's records.
