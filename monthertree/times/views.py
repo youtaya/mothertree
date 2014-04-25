@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from bson import json_util
 import json
 import time as _time
 from datetime import datetime
@@ -27,7 +28,7 @@ def list_contains_record(record_list, record):
 	if (record is None):
 		return False
 
-	record_id = str(record.key().id())
+	record_id = str(record.id)
 	for next in record_list:
 		if ((next != None) and (next['sid'] == record_id)):
 			return True
@@ -45,7 +46,7 @@ def process_client_changes(request_url, records_buffer, updated_records):
 	# build an array of generic objects containing contact data,
 	# using the Django built-in JSON parser
 	logger.debug('Uploaded records buffer: ' + str(records_buffer))
-	json_list = json.loads(records_buffer)
+	json_list = json.loads(records_buffer, object_hook=json_util.object_hook)
 	logger.debug('Client-side updates: ' + str(len(json_list)))
 
 	# keep track of the number of new records the client sent to us,
@@ -53,6 +54,7 @@ def process_client_changes(request_url, records_buffer, updated_records):
 	new_record_count = 0
 
 	for jrecord in json_list:
+		logger.debug('json record ' + str(jrecord))
 		new_record = False
 		sid = safe_attr(jrecord, 'sid')
 		if(sid != None):
@@ -74,13 +76,16 @@ def process_client_changes(request_url, records_buffer, updated_records):
 			continue
 
 		record.title = safe_attr(jrecord, 'title')
-		record.context = safe_attr(jrecord, 'ct')
-		record.create_date = safe_attr(jrecord, 'date')
-		record.create_time = safe_attr(jrecord, 'time')
-		record.content_type = safe_attr(jrecord, 'ctx')
-		record.photo = safe_attr(jrecord, 'po')
-		record.audio = safe_attr(jrecord, 'ao')
-		record.deleted = (safe_attr(jrecord, 'del') == 'true')
+		logger.debug('record title: ' + record.title)
+		record.context = safe_attr(jrecord, 'content')
+		record.create_date = safe_attr(jrecord, 'create_date')
+		record.create_time = safe_attr(jrecord, 'create_time')
+		#record.create_date = timezone.now()
+		#record.create_time = timezone.now()
+		record.content_type = safe_attr(jrecord, 'content_type')
+		#record.photo = safe_attr(jrecord, 'po')
+		#record.audio = safe_attr(jrecord, 'ao')
+		record.deleted = (safe_attr(jrecord, 'deleted') == 'true')
 		if(new_record):
 			# new record - add them to db ...
 			new_record_count = new_record_count + 1
@@ -136,8 +141,11 @@ def get_updated_records(request_url, client_state, updated_records):
 		# we return from this function.
 		high_water_date = datetime.min
 		for record in records:
-			if (record.updated > high_water_date):
-				high_water_date = record.updated
+			result = record.updated.replace(microsecond=0, tzinfo=None)
+			logger.debug("record updated: "+str(result))
+			logger.debug("high water date: "+str(high_water_date))
+			if (result > high_water_date):
+				high_water_date = result
 		high_water_mark = str(long(_time.mktime(high_water_date.utctimetuple())) + 1)
 		logger.debug('New sync state: '+high_water_mark)
 
@@ -217,7 +225,7 @@ def resetdb(request):
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return json.dumps(object)
+	return json.dumps(object, default=json_util.default)
 
 class UpdatedRecordData(object):
 	"""Holds data for user's records.
@@ -238,7 +246,7 @@ class UpdatedRecordData(object):
 	}
 
 	def __init__(self, record_list, username, client_id, host_url, high_water_mark):
-		obj = time.objects.get(handle=username)
+		obj = Time.objects.get(handle=username)
 		record = {}
 		for obj_name, json_name in self.__FIELD_MAP.items():
 			if hasattr(obj, obj_name):
@@ -248,7 +256,7 @@ class UpdatedRecordData(object):
 				else:
 					record[json_name] = None
 
-		record['sid'] = str(obj.key().id())
+		record['sid'] = str(obj.id)
 		record['x'] = high_water_mark
 		if (client_id != None):
 			record['cid'] = str(client_id)
@@ -259,6 +267,6 @@ class DeletedRecordData(object):
 		obj = Time.objects.get(handle=username)
 		record = {}
 		record['del'] = 'true'
-		record['cid'] = str(obj.key().id())
+		record['cid'] = str(obj.id)
 		record['x'] = high_water_mark
 		record_list.append(record)		

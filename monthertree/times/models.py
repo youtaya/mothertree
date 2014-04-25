@@ -11,7 +11,7 @@ class Time(models.Model):
 	audio = models.FileField(upload_to='Audio')
 	status = models.CharField(max_length=50)
 	deleted = models.BooleanField()
-	updated = models.DateTimeField(auto_now=True, auto_now_add=True)
+	updated = models.DateTimeField(auto_now_add=True)
 
 
 	def __unicode__(self):
