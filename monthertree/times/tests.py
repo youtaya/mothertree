@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 from models import Time
 from django.utils import timezone
-from bson import json_util
+from bson.json_util import default, object_hook
 import json
 import logging
 
@@ -28,7 +28,7 @@ class syncTests(TestCase):
 		]
 		python_dict = {
 			"username": "temp",
-			"records": json.dumps(json_data, default=json_util.default),
+			"records": json.dumps(json_data, default=default),
 			"host_url": "abc"
 		}
 		response = self.client.post(reverse('times:sync') 

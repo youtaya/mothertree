@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from bson import json_util
+from bson.json_util import default, object_hook
 import json
 import time as _time
 from datetime import datetime
@@ -46,7 +46,7 @@ def process_client_changes(request_url, records_buffer, updated_records):
 	# build an array of generic objects containing contact data,
 	# using the Django built-in JSON parser
 	logger.debug('Uploaded records buffer: ' + str(records_buffer))
-	json_list = json.loads(records_buffer, object_hook=json_util.object_hook)
+	json_list = json.loads(records_buffer, object_hook=object_hook)
 	logger.debug('Client-side updates: ' + str(len(json_list)))
 
 	# keep track of the number of new records the client sent to us,
@@ -225,7 +225,7 @@ def resetdb(request):
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return json.dumps(object, default=json_util.default)
+	return json.dumps(object, default=default)
 
 class UpdatedRecordData(object):
 	"""Holds data for user's records.
