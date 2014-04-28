@@ -19,11 +19,11 @@ class syncTests(TestCase):
 				"handle": "temp",
 				"title": "hello, world",
 				"content": "test for test",
-				"create_date": timezone.now(),
-				"create_time": timezone.now(),
+				"date": timezone.now(),
+				"time": timezone.now(),
 				#"create_date": "2014-4-25",
 				#"create_time": "2014-4-25 08:22:34",
-				"content_type": 1,
+				"ctx": 1,
 			},
 		]
 		python_dict = {

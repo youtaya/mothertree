@@ -78,14 +78,14 @@ def process_client_changes(request_url, records_buffer, updated_records):
 		record.title = safe_attr(jrecord, 'title')
 		logger.debug('record title: ' + record.title)
 		record.context = safe_attr(jrecord, 'content')
-		record.create_date = safe_attr(jrecord, 'create_date')
-		record.create_time = safe_attr(jrecord, 'create_time')
+		record.create_date = safe_attr(jrecord, 'date')
+		record.create_time = safe_attr(jrecord, 'time')
 		#record.create_date = timezone.now()
 		#record.create_time = timezone.now()
-		record.content_type = safe_attr(jrecord, 'content_type')
+		record.content_type = safe_attr(jrecord, 'ctx')
 		#record.photo = safe_attr(jrecord, 'po')
 		#record.audio = safe_attr(jrecord, 'ao')
-		record.deleted = (safe_attr(jrecord, 'deleted') == 'true')
+		record.deleted = (safe_attr(jrecord, 'del') == 'true')
 		if(new_record):
 			# new record - add them to db ...
 			new_record_count = new_record_count + 1
