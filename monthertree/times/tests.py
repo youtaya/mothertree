@@ -21,9 +21,11 @@ class syncTests(TestCase):
 				"content": "test for test",
 				"date": timezone.now(),
 				"time": timezone.now(),
-				#"create_date": "2014-4-25",
-				#"create_time": "2014-4-25 08:22:34",
+				#"date": "2014-4-25",
+				#"time": "2014-4-25 08:22:34",
 				"ctx": 1,
+				"po": "123",
+				"ao": "",
 			},
 		]
 		python_dict = {

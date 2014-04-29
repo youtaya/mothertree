@@ -83,8 +83,8 @@ def process_client_changes(request_url, records_buffer, updated_records):
 		#record.create_date = timezone.now()
 		#record.create_time = timezone.now()
 		record.content_type = safe_attr(jrecord, 'ctx')
-		#record.photo = safe_attr(jrecord, 'po')
-		#record.audio = safe_attr(jrecord, 'ao')
+		record.photo = safe_attr(jrecord, 'po')
+		record.audio = safe_attr(jrecord, 'ao')
 		record.deleted = (safe_attr(jrecord, 'del') == 'true')
 		if(new_record):
 			# new record - add them to db ...
