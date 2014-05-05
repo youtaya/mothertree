@@ -222,6 +222,29 @@ def resetdb(request):
 
 	return HttpResponse(200)
 
+def process_client_share(records_buffer, target_handle):
+	record = Time(handle=target_handle)
+	json_list = json.loads(records_buffer, object_hook=object_hook)
+	for jrecord in json_list:
+		record.title = safe_attr(jrecord, 'title')
+		logger.debug('record title: ' + record.title)
+		record.context = safe_attr(jrecord, 'content')
+		record.create_date = safe_attr(jrecord, 'date')
+		record.create_time = safe_attr(jrecord, 'time')
+		record.content_type = safe_attr(jrecord, 'ctx')
+		record.photo = safe_attr(jrecord, 'po')
+		record.audio = safe_attr(jrecord, 'ao')
+		record.deleted = (safe_attr(jrecord, 'del') == 'true')
+
+		record.save()
+		logger.debug('Saved record: '+record.handle)
+
+def share(request):
+	username = 'temp'
+	client_buffer = request.POST.get('records')
+	target = request.POST.get('target')
+	process_client_share(client_buffer, target)
+	return HttpResponse(200)
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""

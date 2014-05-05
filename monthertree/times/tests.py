@@ -21,8 +21,6 @@ class syncTests(TestCase):
 				"content": "test for test",
 				"date": timezone.now(),
 				"time": timezone.now(),
-				#"date": "2014-4-25",
-				#"time": "2014-4-25 08:22:34",
 				"ctx": 1,
 				"po": "123",
 				"ao": "",
@@ -38,6 +36,27 @@ class syncTests(TestCase):
 			#content_type="application/json")
 		records = Time.objects.all()
 		self.assertEqual(len(records), 1)
-		self.assertEqual(response.status_code, 200)
-		
 
+	def test_share_with_user(self):
+		json_data = [
+			{
+				"handle": "temp",
+				"title": "hello, world",
+				"content": "test for test",
+				"date": timezone.now(),
+				"time": timezone.now(),
+				"ctx": 1,
+				"po": "123",
+				"ao": "",
+			},
+		]
+		python_dict = {
+			"username": "temp",
+			"records": json.dumps(json_data, default=default),
+			"target": "abc"
+		}
+
+		response = self.client.post(reverse('times:share'),python_dict)
+		records = Time.objects.filter(handle='abc')
+		self.assertEqual(len(records), 2)
+		self.assertEqual(response.status_code, 200)
