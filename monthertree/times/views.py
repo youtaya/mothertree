@@ -271,6 +271,8 @@ class UpdatedRecordData(object):
 	}
 
 	def __init__(self, record_list, username, client_id, host_url, high_water_mark):
+		# ToDO: think again
+		# get Multiple objects not deal
 		obj = Time.objects.get(handle=username)
 		record = {}
 		for obj_name, json_name in self.__FIELD_MAP.items():
