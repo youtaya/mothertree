@@ -39,7 +39,7 @@ def safe_attr(obj, attr_name):
 		return obj[attr_name]
 	return None
 
-def process_client_changes(request_url, records_buffer, updated_records):
+def process_client_changes(request_url, username, records_buffer, updated_records):
 	logger.debug('* Processing client changes')
 	base_url = request_url
 
@@ -64,7 +64,7 @@ def process_client_changes(request_url, records_buffer, updated_records):
 			logger.debug('creating new time record')
 			new_record = True
 			# todo : need pass user name to handle
-			record = Time(handle='temp')
+			record = Time(handle=username)
 
 		# if the 'change' for this record is that they were deleted
 		# on the client-side, all we want to do is set the deleted
@@ -173,8 +173,7 @@ def get_updated_records(request_url, client_state, updated_records):
 
 def sync(request):
 
-	# get user name: request.get('username')
-	username = 'temp'
+	username = request.POST.get('username')
 	# upload client dirty records
 	updated_records = []
 	if request.method == 'POST':
@@ -185,7 +184,7 @@ def sync(request):
 	request_url = request.POST.get('host_url')
 
 	if((client_buffer != None) and (client_buffer != '')):
-		process_client_changes(request_url, client_buffer, updated_records)
+		process_client_changes(request_url, username, client_buffer, updated_records)
 	
 	# add any records on the server-side
 	client_state = request.POST.get('syncstate')

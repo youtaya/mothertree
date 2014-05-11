@@ -29,7 +29,6 @@ class syncTests(TestCase):
 		python_dict = {
 			"username": "temp",
 			"records": json.dumps(json_data, default=default),
-			"host_url": "abc"
 		}
 		response = self.client.post(reverse('times:sync') 
 			,python_dict)
