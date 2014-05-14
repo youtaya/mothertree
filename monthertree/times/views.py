@@ -30,7 +30,9 @@ def list_contains_record(record_list, record):
 
 	record_id = str(record.id)
 	for next in record_list:
-		if ((next != None) and (next['sid'] == record_id)):
+		logger.debug("next is : "+str(next))
+		# next is : {'x': '1400080248', 'del': 'true', 'cid': 'None'}
+		if ((next != None)): # and (next['sid'] == record_id)):
 			return True
 	return False
 	
@@ -76,7 +78,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 			continue
 
 		record.title = safe_attr(jrecord, 'title')
-		logger.debug('record title: ' + record.title)
+		logger.debug('record title: ' + str(record.title))
 		record.content = safe_attr(jrecord, 'content')
 		record.create_date = safe_attr(jrecord, 'date')
 		record.create_time = safe_attr(jrecord, 'time')
@@ -272,7 +274,7 @@ class UpdatedRecordData(object):
 	def __init__(self, record_list, username, client_id, host_url, high_water_mark):
 		# ToDO: think again
 		# get Multiple objects not deal
-		obj = Time.objects.get(handle=username)
+		obj = Time(handle=username)
 		record = {}
 		for obj_name, json_name in self.__FIELD_MAP.items():
 			if hasattr(obj, obj_name):
@@ -290,7 +292,7 @@ class UpdatedRecordData(object):
 
 class DeletedRecordData(object):
 	def __init__(self, record_list, username, high_water_mark):
-		obj = Time.objects.get(handle=username)
+		obj = Time(handle=username)
 		record = {}
 		record['del'] = 'true'
 		record['cid'] = str(obj.id)
