@@ -23,7 +23,21 @@ class syncTests(TestCase):
 				"time": timezone.now(),
 				"ctx": 1,
 				"po": "123",
+				"ao": "234",
+                                "dirty": 1,
+                                "deleted": 0,
+			},
+			{
+				"handle": "temp",
+				"title": "time",
+				"content": "I'm coming again",
+				"date": timezone.now(),
+				"time": timezone.now(),
+				"ctx": 1,
+				"po": "123",
 				"ao": "",
+                                "dirty": 1,
+                                "deleted": 0,
 			},
 		]
 		python_dict = {
@@ -34,6 +48,8 @@ class syncTests(TestCase):
 			,python_dict)
 			#content_type="application/json")
 		records = Time.objects.all()
+                for record in records:
+                    self.assertEqual(record.id,0)
 		self.assertEqual(len(records), 1)
 
 	def test_share_with_user(self):
