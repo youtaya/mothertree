@@ -25,6 +25,8 @@ class syncTests(TestCase):
 				"po": "123",
 				"ao": "",
 				"cid": 5, 
+				"dirty": 1,
+				"deleted": 0,
 			},
 			{
 				"handle": "temp",
@@ -36,6 +38,8 @@ class syncTests(TestCase):
 				"po": "",
 				"ao": "234",
 				"cid": 6, 
+				"dirty": 1,
+				"deleted": 0,
 			},			
 		]
 		python_dict = {
