@@ -16,3 +16,10 @@ class Time(models.Model):
 
 	def __unicode__(self):
 		return self.content
+
+	@classmethod
+	def get_record_create_time(cls, time):
+		if create_time not in (None, ''):
+			query = cls.objects.get(create_time=time)
+			return query
+		return None

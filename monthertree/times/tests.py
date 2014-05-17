@@ -19,12 +19,24 @@ class syncTests(TestCase):
 				"handle": "temp",
 				"title": "hello, world",
 				"content": "test for test",
-				"date": timezone.now(),
-				"time": timezone.now(),
+				"date": "2014/05/16",
+				"time": "2014/05/16 21:22:31",
 				"ctx": 1,
 				"po": "123",
 				"ao": "",
+				"cid": 5, 
 			},
+			{
+				"handle": "temp",
+				"title": "next, step",
+				"content": "share friend",
+				"date": "2014/05/16",
+				"time": "2014/05/16 22:29:11",
+				"ctx": 1,
+				"po": "",
+				"ao": "234",
+				"cid": 6, 
+			},			
 		]
 		python_dict = {
 			"username": "temp",
@@ -33,6 +45,7 @@ class syncTests(TestCase):
 		response = self.client.post(reverse('times:sync') 
 			,python_dict)
 			#content_type="application/json")
+		self.assertEqual(response.content, "ok")
 		records = Time.objects.all()
 		self.assertEqual(len(records), 1)
 
@@ -41,11 +54,12 @@ class syncTests(TestCase):
 			"handle": "temp",
 			"title": "hello, world",
 			"content": "test for test",
-			"date": timezone.now(),
-			"time": timezone.now(),
+			"date": "2014/05/15",
+			"time": "2014/05/15 23:12:34",
 			"ctx": 1,
 			"po": "123",
 			"ao": "",
+			"cid": 6,
 		}
 		
 		python_dict = {

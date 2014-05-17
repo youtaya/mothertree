@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def index(request):
 	logger.debug("request: %s" %request.user)
 	#latest_time_list = Time.objects.filter(user=request.get('username'))
-	latest_time_list = Time.objects.filter(handle='jinxp')
+	latest_time_list = Time.objects.filter(handle='temp')
 	context = {'latest_time_list': latest_time_list}
 
 	return render(request, 'times/index.html', context)
@@ -32,7 +32,7 @@ def list_contains_record(record_list, record):
 	for next in record_list:
 		logger.debug("next is : "+str(next))
 		# next is : {'x': '1400080248', 'del': 'true', 'cid': 'None'}
-		if ((next != None)): # and (next['sid'] == record_id)):
+		if ((next != None) and (next['sid'] == record_id)):
 			return True
 	return False
 	
@@ -91,7 +91,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		if(new_record):
 			# new record - add them to db ...
 			new_record_count = new_record_count + 1
-			record.handle = 'temp'
+			#record.handle = 'temp'
 			logger.debug('Created new record handle: '+ record.handle)
 		record.save()
 		logger.debug('Saved record: '+record.handle)
@@ -100,8 +100,12 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		# the "save"), but we want it to be in the JSON object we
 		# serialize out, so that the client can match this contact
 		# up with the client version
-		client_id = safe_attr('jrecord', 'cid')
+		client_id = safe_attr(jrecord, 'cid')
 
+		mark_time = record.create_time
+		logger.debug('record time: ' + mark_time)
+
+		
 		# create a high-water-mark for sync-state from the 'updated' time
 		# for this record, so we return the corrent value to the client.
 		high_water = str(long(_time.mktime(record.updated.utctimetuple())) + 1)
@@ -110,8 +114,9 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		# to the client (so the client gets the serverId for the 
 		# added record)
 		if (new_record):
-			UpdatedRecordData(updated_records, record.handle, client_id, base_url,
-				high_water)
+			logger.debug('client id: ' + str(client_id))
+			UpdatedRecordData(updated_records, record.handle, client_id, mark_time,
+				base_url, high_water)
 
 	logger.debug('Client-side adds: '+str(new_record_count))
 
@@ -161,14 +166,14 @@ def get_updated_records(request_url, client_state, updated_records):
 				continue
 
 			handle = record.handle
-
+			create_time = record.create_time
 			if timestamp is None or record.updated > timestamp:
 				if record.deleted == True:
 					delete_count = delete_count + 1
-					DeletedRecordData(updated_records, handle, high_water_mark)
+					DeletedRecordData(updated_records, handle, create_time, high_water_mark)
 				else:
 					update_count = update_count + 1
-					UpdatedRecordData(updated_records, handle, None, base_url, high_water_mark)
+					UpdatedRecordData(updated_records, handle, None, create_time, base_url, high_water_mark)
 
 	logger.debug('Server-side updates: '+str(update_count))
 	logger.debug('Server-side deletes: '+str(delete_count))
@@ -271,10 +276,9 @@ class UpdatedRecordData(object):
 		'client_id': 'cid'
 	}
 
-	def __init__(self, record_list, username, client_id, host_url, high_water_mark):
-		# ToDO: think again
-		# get Multiple objects not deal
-		obj = Time(handle=username)
+	def __init__(self, record_list, username, client_id, mark_time, host_url, high_water_mark):
+
+		obj = Time.objects.get(create_time=mark_time)
 		record = {}
 		for obj_name, json_name in self.__FIELD_MAP.items():
 			if hasattr(obj, obj_name):
@@ -286,15 +290,16 @@ class UpdatedRecordData(object):
 
 		record['sid'] = str(obj.id)
 		record['x'] = high_water_mark
+		logger.debug('client id: ' + str(client_id))
 		if (client_id != None):
-			record['cid'] = str(client_id)
+			record['cid'] = client_id
 		record_list.append(record)
 
 class DeletedRecordData(object):
-	def __init__(self, record_list, username, high_water_mark):
-		obj = Time(handle=username)
+	def __init__(self, record_list, username, mark_time, high_water_mark):
+		obj = Time.objects.get(create_time=mark_time)
 		record = {}
 		record['del'] = 'true'
-		record['cid'] = str(obj.id)
+		record['sid'] = obj.id
 		record['x'] = high_water_mark
 		record_list.append(record)		
