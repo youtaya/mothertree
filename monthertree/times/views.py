@@ -143,7 +143,7 @@ def get_updated_records(request_url, client_state, updated_records):
 
 	records = Time.objects.all()
 	if records:
-		# find the high-water mark for the most recently updated friend.
+		# find the high-water mark for the most recently updated record.
 		# we'll return this as the syncstate (x) value for all the friends
 		# we return from this function.
 		high_water_date = datetime.min
@@ -160,7 +160,7 @@ def get_updated_records(request_url, client_state, updated_records):
 		# changed since the last sync
 		for record in records:
 			# if our list of records we're returning already contains this
-			# contact (for example, it's a record just uploaded from the client)
+			# record (for example, it's a record just uploaded from the client)
 			# then don't bother processing it any further...
 			if (list_contains_record(updated_records, record)):
 				continue
@@ -206,24 +206,24 @@ def resetdb(request):
 	for record in records:
 		record.delete()
 
-	record1 = Time(handle='temp',
+	record1 = Time(handle='jinxp',
 		title="test1",
 		content="what's thsis",
 		create_date=timezone.now(),
 		create_time=timezone.now(),
 		content_type=1,
 		status="now ok",
-		deleted='False')
+		deleted='false')
 	record1.save()
 
-	record2 = Time(handle='temp',
+	record2 = Time(handle='jinxp',
 		title="test2",
 		content="time filping",
 		create_date=timezone.now(),
 		create_time=timezone.now(),
 		content_type=1,
 		status="we are still here",
-		deleted='False')
+		deleted='false')
 	record2.save()
 
 	return HttpResponse(200)
