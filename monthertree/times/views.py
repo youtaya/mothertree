@@ -30,8 +30,6 @@ def list_contains_record(record_list, record):
 
 	record_id = str(record.id)
 	for next in record_list:
-		logger.debug("next is : "+str(next))
-		# next is : {'x': '1400080248', 'del': 'true', 'cid': 'None'}
 		if ((next != None) and (next['sid'] == record_id)):
 			return True
 	return False
@@ -114,7 +112,6 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		# to the client (so the client gets the serverId for the 
 		# added record)
 		if (new_record):
-			logger.debug('client id: ' + str(client_id))
 			UpdatedRecordData(updated_records, record.handle, client_id, mark_time,
 				base_url, high_water)
 
@@ -122,7 +119,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 
 
 
-def get_updated_records(request_url, client_state, updated_records):
+def get_updated_records(request_url, username, client_state, updated_records):
 	logger.debug('* Processing server changes')
 	timestamp = None
 
@@ -141,7 +138,7 @@ def get_updated_records(request_url, client_state, updated_records):
 	update_count = 0
 	delete_count = 0
 
-	records = Time.objects.all()
+	records = Time.objects.filter(handle=username)
 	if records:
 		# find the high-water mark for the most recently updated record.
 		# we'll return this as the syncstate (x) value for all the friends
@@ -167,6 +164,8 @@ def get_updated_records(request_url, client_state, updated_records):
 
 			handle = record.handle
 			create_time = record.create_time
+			logger.debug("record updated: "+str(record.updated))
+			logger.debug("timestamp: "+str(timestamp))
 			if timestamp is None or record.updated > timestamp:
 				if record.deleted == True:
 					delete_count = delete_count + 1
@@ -193,10 +192,13 @@ def sync(request):
 	if((client_buffer != None) and (client_buffer != '')):
 		process_client_changes(request_url, username, client_buffer, updated_records)
 	
+
+
 	# add any records on the server-side
 	client_state = request.POST.get('syncstate')
-	get_updated_records(request_url, client_state, updated_records)
+	get_updated_records(request_url, username, client_state, updated_records)
 
+	logger.debug("update records are : "+toJSON(updated_records))
 	# update latest records
 	#HttpResponse.status(200)
 	return HttpResponse(toJSON(updated_records))
@@ -206,25 +208,36 @@ def resetdb(request):
 	for record in records:
 		record.delete()
 
-	record1 = Time(handle='jinxp',
+	record1 = Time(handle='temp',
 		title="test1",
 		content="what's thsis",
 		create_date=timezone.now(),
 		create_time=timezone.now(),
 		content_type=1,
 		status="now ok",
-		deleted='false')
+		deleted=False)
 	record1.save()
 
-	record2 = Time(handle='jinxp',
+	record2 = Time(handle='temp',
 		title="test2",
 		content="time filping",
 		create_date=timezone.now(),
 		create_time=timezone.now(),
 		content_type=1,
 		status="we are still here",
-		deleted='false')
+		deleted=False)
 	record2.save()
+
+	# for test
+	record3 = Time(handle='jinxp',
+		title="test1",
+		content="what's thsis",
+		create_date=timezone.now(),
+		create_time=timezone.now(),
+		content_type=1,
+		status="now ok",
+		deleted=False)
+	record3.save()
 
 	return HttpResponse(200)
 
@@ -266,7 +279,7 @@ class UpdatedRecordData(object):
 	__FIELD_MAP = {
 		'handle': 'user',
 		'title': 'title',
-		'content': 'ct',
+		'content': 'content',
 		'create_date': 'date',
 		'create_time': 'time',
 		'content_type': 'ctx',
@@ -277,8 +290,9 @@ class UpdatedRecordData(object):
 	}
 
 	def __init__(self, record_list, username, client_id, mark_time, host_url, high_water_mark):
-
+		logger.debug("mark create time: "+mark_time)
 		obj = Time.objects.get(create_time=mark_time)
+
 		record = {}
 		for obj_name, json_name in self.__FIELD_MAP.items():
 			if hasattr(obj, obj_name):
@@ -290,7 +304,7 @@ class UpdatedRecordData(object):
 
 		record['sid'] = str(obj.id)
 		record['x'] = high_water_mark
-		logger.debug('client id: ' + str(client_id))
+		logger.debug("mark client id: "+str(client_id))
 		if (client_id != None):
 			record['cid'] = client_id
 		record_list.append(record)
