@@ -203,6 +203,21 @@ def sync(request):
 	#HttpResponse.status(200)
 	return HttpResponse(toJSON(updated_records))
 
+def addrecord(request):
+	# for test
+	record3 = Time(handle='jinxp',
+		title="test1",
+		content="what's thsis",
+		create_date=timezone.now(),
+		create_time=timezone.now(),
+		content_type=1,
+		status="now ok",
+		deleted=False)
+	record3.save()
+
+	return HttpResponse(200)
+
+
 def resetdb(request):
 	records = Time.objects.all()
 	for record in records:
@@ -227,17 +242,6 @@ def resetdb(request):
 		status="we are still here",
 		deleted=False)
 	record2.save()
-
-	# for test
-	record3 = Time(handle='jinxp',
-		title="test1",
-		content="what's thsis",
-		create_date=timezone.now(),
-		create_time=timezone.now(),
-		content_type=1,
-		status="now ok",
-		deleted=False)
-	record3.save()
 
 	return HttpResponse(200)
 
