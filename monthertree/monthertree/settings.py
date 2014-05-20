@@ -95,6 +95,7 @@ INSTALLED_APPS = (
     # our app add by jinxp
     'times',
     'news',
+    'friends',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
