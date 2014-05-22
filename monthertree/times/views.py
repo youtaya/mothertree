@@ -8,6 +8,7 @@ from datetime import datetime
 from models import Time
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.utils.encoding import smart_unicode
 import logging
 
 from django.views import generic
@@ -45,7 +46,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 
 	# build an array of generic objects containing contact data,
 	# using the Django built-in JSON parser
-	logger.debug('Uploaded records buffer: ' + str(records_buffer))
+	logger.debug('Uploaded records buffer: ' + smart_unicode(records_buffer))
 	json_list = json.loads(records_buffer, object_hook=object_hook)
 	logger.debug('Client-side updates: ' + str(len(json_list)))
 
@@ -302,7 +303,7 @@ class UpdatedRecordData(object):
 			if hasattr(obj, obj_name):
 				v = getattr(obj, obj_name)
 				if (v != None):
-					record[json_name] = str(v)
+					record[json_name] = smart_unicode(v)
 				else:
 					record[json_name] = None
 
