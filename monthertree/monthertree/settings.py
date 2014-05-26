@@ -175,5 +175,9 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'DEBUG'
         },
+        'friends': {
+            'handlers': ['file'],
+            'level': 'DEBUG'
+        },        
     },
 }
