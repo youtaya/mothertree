@@ -17,6 +17,7 @@ class syncTests(TestCase):
 		json_data = [
 			{
 				"handle": "temp",
+				"link": "temp",
 				"title": "hello, world",
 				"content": "test for test",
 				"date": "2014/05/16",
@@ -30,6 +31,7 @@ class syncTests(TestCase):
 			},
 			{
 				"handle": "temp",
+				"link": "temp",
 				"title": "next, step",
 				"content": "share friend",
 				"date": "2014/05/16",
@@ -56,6 +58,7 @@ class syncTests(TestCase):
 	def test_share_with_user(self):
 		json_data = {
 			"handle": "temp",
+			"link": "temp",
 			"title": "hello, world",
 			"content": "test for test",
 			"date": "2014/05/15",
@@ -74,6 +77,5 @@ class syncTests(TestCase):
 
 		response = self.client.post(reverse('times:share'),python_dict)
 		record = Time.objects.get(handle='abc')
-		self.assertEqual(record.content, "hello,world")
-		self.assertEqual(len(record), 2)
+		self.assertEqual(record.link, "temp")
 		self.assertEqual(response.status_code, 200)

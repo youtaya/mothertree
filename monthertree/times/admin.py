@@ -4,13 +4,13 @@ from times.models import Time
 
 class TimeAdmin(admin.ModelAdmin):
 	fieldsets = [
-		(None, {'fields':['handle', 'title']}),
+		(None, {'fields':['handle', 'link']}),
+		('title', {'fields': ['title']}),
 		(None, {'fields': ['content']}),
 		('Create Date', {'fields':['create_date']}),
 		('Create Time', {'fields':['create_time']}),
 		('Content Type', {'fields':['content_type']}),
 		#(None, {'fields':['photo', 'audio']}),
-		#('Status', {'fields': ['status']}),
 		('Deleted', {'fields': ['deleted']}),
 		#('Updated', {'fields': ['updated']}),
 	]

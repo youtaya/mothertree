@@ -76,6 +76,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 			logger.debug('Deleted record: '+record.handle)
 			continue
 
+		record.link = safe_attr(jrecord, 'link')
 		record.title = safe_attr(jrecord, 'title')
 		logger.debug('record title: ' + str(record.title))
 		record.content = safe_attr(jrecord, 'content')
@@ -212,7 +213,7 @@ def addrecord(request):
 		create_date=timezone.now(),
 		create_time=timezone.now(),
 		content_type=1,
-		status="now ok",
+		link="jinxp",
 		deleted=False)
 	record3.save()
 
@@ -230,7 +231,7 @@ def resetdb(request):
 		create_date=timezone.now(),
 		create_time=timezone.now(),
 		content_type=1,
-		status="now ok",
+		link="temp",
 		deleted=False)
 	record1.save()
 
@@ -240,7 +241,7 @@ def resetdb(request):
 		create_date=timezone.now(),
 		create_time=timezone.now(),
 		content_type=1,
-		status="we are still here",
+		link="temp",
 		deleted=False)
 	record2.save()
 
@@ -255,6 +256,7 @@ def process_client_share(records_buffer, target_handle):
 	
 	record.content = safe_attr(jrecord, 'content')
 	logger.debug('record context: ' + record.content)
+	record.link = safe_attr(jrecord, 'link')
 	record.create_date = timezone.now()
 	record.create_time = timezone.now()
 	record.content_type = safe_attr(jrecord, 'ctx')
@@ -290,7 +292,7 @@ class UpdatedRecordData(object):
 		'content_type': 'ctx',
 		'photo': 'po',
 		'audio': 'ao',
-		'status': 'status',
+		'link': 'link',
 		'client_id': 'cid'
 	}
 
