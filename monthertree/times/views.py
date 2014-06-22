@@ -76,7 +76,8 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 			logger.debug('Deleted record: '+record.handle)
 			continue
 
-		record.link = safe_attr(jrecord, 'link')
+		if(None != safe_attr(jrecord, 'link')):
+			record.link = safe_attr(jrecord, 'link')
 		record.title = safe_attr(jrecord, 'title')
 		logger.debug('record title: ' + str(record.title))
 		record.content = safe_attr(jrecord, 'content')
