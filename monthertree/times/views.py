@@ -249,15 +249,17 @@ def resetdb(request):
 	return HttpResponse(200)
 
 def process_client_share(records_buffer, target_handle):
-	record = Time(handle='abc')
+	
 	jrecord = json.loads(records_buffer, object_hook=object_hook)
 	logger.debug("jsons list: "+ str(jrecord))
-
+	username = safe_attr(jrecord, 'user')
+	record = Time(handle=username)
+	
 	record.title = safe_attr(jrecord, 'title')
 	
 	record.content = safe_attr(jrecord, 'content')
 	logger.debug('record context: ' + record.content)
-	record.link = safe_attr(jrecord, 'link')
+	record.link = target_handle
 	record.create_date = timezone.now()
 	record.create_time = timezone.now()
 	record.content_type = safe_attr(jrecord, 'ctx')
@@ -269,7 +271,7 @@ def process_client_share(records_buffer, target_handle):
 	logger.debug('Saved record: '+record.handle)
 
 def share(request):
-	username = 'temp'
+	#username = 'temp'
 	client_buffer = request.POST.get('records')
 	target = request.POST.get('target')
 	process_client_share(client_buffer, target)
