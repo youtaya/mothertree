@@ -11,6 +11,8 @@ def recommend(request):
 	recommend_friends = []
 	friends = User.objects.all()
 	for friend in friends:
+		if(friend.username == "root"):
+			continue
 		logger.debug("friend is : %s" %friend.username)
 		recommend = {'friends': friend.username}
 		recommend_friends.append(recommend)
