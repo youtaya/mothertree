@@ -301,7 +301,7 @@ class UpdatedRecordData(object):
 
 	def __init__(self, record_list, username, client_id, mark_time, host_url, high_water_mark):
 		logger.debug("mark create time: "+mark_time)
-		obj = Time.objects.get(create_time=mark_time)
+		obj = Time.objects.get(handle=username, create_time=mark_time)
 
 		record = {}
 		for obj_name, json_name in self.__FIELD_MAP.items():
@@ -321,7 +321,8 @@ class UpdatedRecordData(object):
 
 class DeletedRecordData(object):
 	def __init__(self, record_list, username, mark_time, high_water_mark):
-		obj = Time.objects.get(create_time=mark_time)
+		#allObjs = Time.objects.filter(handle=username)
+		obj = Time.objects.get(handle=username, create_time=mark_time)
 		record = {}
 		record['del'] = 'true'
 		record['sid'] = obj.id
