@@ -253,13 +253,13 @@ def process_client_share(records_buffer, target_handle):
 	jrecord = json.loads(records_buffer, object_hook=object_hook)
 	logger.debug("jsons list: "+ str(jrecord))
 	username = safe_attr(jrecord, 'user')
-	record = Time(handle=username)
+	record = Time(handle=target_handle)
 	
 	record.title = safe_attr(jrecord, 'title')
 	
 	record.content = safe_attr(jrecord, 'content')
 	logger.debug('record context: ' + record.content)
-	record.link = target_handle
+	record.link = username 
 	record.create_date = timezone.now()
 	record.create_time = timezone.now()
 	record.content_type = safe_attr(jrecord, 'ctx')
