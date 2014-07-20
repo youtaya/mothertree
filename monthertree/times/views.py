@@ -277,6 +277,25 @@ def share(request):
 	process_client_share(client_buffer, target)
 	return HttpResponse(200)
 
+def photo(request):
+	#get image from client
+	#save image to media folder
+	if request.method == "POST":
+		form = ImageForm(request.POST, request.FILES)
+		if form.is_valid() and form.is_multipart():
+			save_file(request.FILES['image'])
+			return HttpResponse(200)
+		else 
+			return HttpResponse('invalid image')
+	
+def save_file(file, path=''):
+
+	filename = file._get_name()
+	fd = open('%s/%s' % (MEDIA_ROOT), str(path)+str(filename)), 'wb')
+	for chunk in file.chunks():
+		fd.write(chunk)
+	fd.close()
+	
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
 	return json.dumps(object, default=default)
