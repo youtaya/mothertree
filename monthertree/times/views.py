@@ -6,6 +6,7 @@ import json
 import time as _time
 from datetime import datetime
 from models import Time
+from forms import UploadFileForm
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import smart_unicode
@@ -281,17 +282,18 @@ def photo(request):
 	#get image from client
 	#save image to media folder
 	if request.method == "POST":
-		form = ImageForm(request.POST, request.FILES)
+		form = UplaodFileForm(request.POST, request.FILES)
+		logger.debug("[photo]request POST: "+ request.POST)
 		if form.is_valid() and form.is_multipart():
 			save_file(request.FILES['image'])
 			return HttpResponse(200)
-		else 
+		else:
 			return HttpResponse('invalid image')
 	
 def save_file(file, path=''):
 
 	filename = file._get_name()
-	fd = open('%s/%s' % (MEDIA_ROOT), str(path)+str(filename)), 'wb')
+	fd = open('%s/%s' % (MEDIA_ROOT , str(path)+str(filename)), 'wb')
 	for chunk in file.chunks():
 		fd.write(chunk)
 	fd.close()
