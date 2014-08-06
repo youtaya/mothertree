@@ -19,7 +19,7 @@ PACKAGE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(PACKAGE_DIR, "site_media", "media")
+MEDIA_ROOT = os.path.join(PROJECT_DIR, "site_media", "media")
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -64,6 +64,10 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+FILE_UPLOAD_HANDLERS = (
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '9=0vsj6p6-6gpjmiu!_=t)vs766nxf*h5b!#%7zxel9!@l@4xf'

@@ -11,7 +11,8 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import smart_unicode
 import logging
-
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from django.views import generic
 
 logger = logging.getLogger(__name__)
@@ -278,26 +279,34 @@ def share(request):
 	process_client_share(client_buffer, target)
 	return HttpResponse(200)
 
+@csrf_exempt
 def photo(request):
 	#get image from client
 	#save image to media folder
 	if request.method == "POST":
-		form = UplaodFileForm(request.POST, request.FILES)
-		logger.debug("[photo]request POST: "+ request.POST)
+		form = UploadFileForm(request.POST, request.FILES)
+		logger.debug("[photo]request POST form: "+ str(request.POST))
 		if form.is_valid() and form.is_multipart():
+			logger.debug("[photo]upload image: "+str(request.FILES))
 			save_file(request.FILES['image'])
 			return HttpResponse(200)
 		else:
 			return HttpResponse('invalid image')
 	
+	if request.method == "GET":
+		return render(request, 'times/photo.html')
+	
 def save_file(file, path=''):
-
+	
 	filename = file._get_name()
-	fd = open('%s/%s' % (MEDIA_ROOT , str(path)+str(filename)), 'wb')
+	logger.debug("[photo]save image: "+filename)
+
+	fd = open('%s/%s' % (settings.MEDIA_ROOT , str(path)+str(filename)), 'wb')
 	for chunk in file.chunks():
 		fd.write(chunk)
 	fd.close()
-	
+
+
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
 	return json.dumps(object, default=default)
