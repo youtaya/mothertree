@@ -12,5 +12,5 @@ urlpatterns = patterns('',
 	url(r'^add/$', views.addrecord, name="add"),
 	url(r'^share/$', views.share, name="share"),
 	url(r'^photo/$', views.photo, name="photo"),
-	
+	url(r'^photoView/$', views.photoView, name="photoView"),
 )

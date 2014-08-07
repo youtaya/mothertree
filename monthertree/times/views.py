@@ -306,6 +306,14 @@ def save_file(file, path=''):
 		fd.write(chunk)
 	fd.close()
 
+def photoView(request):
+    """
+    Processes request to view photo. 
+    It just returns the raw image itself.
+    """
+    if request.method == "GET":
+		image_data = open('%s/%s' % (settings.MEDIA_ROOT , "b46f1255cf8cbd1.jpg"), "rb").read()
+		return HttpResponse(image_data, mimetype="image/png")
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
