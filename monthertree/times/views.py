@@ -313,7 +313,7 @@ def photoView(request):
     """
     if request.method == "GET":
 		image_data = open('%s/%s' % (settings.MEDIA_ROOT , "b46f1255cf8cbd1.jpg"), "rb").read()
-		return HttpResponse(image_data, mimetype="image/png")
+		return HttpResponse(image_data, content_type="image/png")
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
