@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
 
 import os
 import sys
-sys.path.append('/home/jinxp/Documents/shell/mothertree/monthertree/')
+from django.conf import settings
+sys.path.append(settings.PROJECT_DIR)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "monthertree.settings")
 
 from django.core.wsgi import get_wsgi_application
