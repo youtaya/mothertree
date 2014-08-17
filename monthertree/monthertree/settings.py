@@ -100,6 +100,7 @@ INSTALLED_APPS = (
     'times',
     'news',
     'friends',
+    'users',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -158,6 +159,8 @@ USE_L10N = True
 USE_TZ = True
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+AUTH_PROFILE_MODULE = 'users.UserProfile'
 
 LOGGING = {
     'version': 1,

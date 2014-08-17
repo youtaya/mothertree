@@ -322,7 +322,7 @@ def photoView2(request):
     It just returns the raw image itself.
     """
 
-    image_data2 = open('%s/%s' % (settings.MEDIA_ROOT , "b46f1255cf8cbd1.jpg"), "rb").read()
+    image_data2 = open('%s/%s' % (settings.MEDIA_ROOT , "20140810231230"), "rb").read()
     return HttpResponse(image_data2, content_type="image/png")
 
 def toJSON(object):
