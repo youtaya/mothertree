@@ -7,4 +7,5 @@ urlpatterns = patterns('',
 	# url(r'^(?P<pk>\d+)/results/$', views.ResultsView.as_view(), name='results'),
 
 	url(r'^luckyday/$', views.luckyday, name="luckyday"),
+	url(r'^getday/$', views.getday, name="getday"),
 )

@@ -16,7 +16,19 @@ def luckyday(request):
 	#json_list = json.loads(luck_data, object_hook=object_hook)
 	current_user = User.objects.get(username=request.user)
 	userProfile = current_user.get_profile()
-	userProfile.luckyday = '2014/05/16'
+	userProfile.luckyday = '2014-05-16'
 	userProfile.save()
 
 	return HttpResponse(200)
+
+def getday(request):
+	logger.debug("request: %s" %request.user)
+
+	#luck_data = request.POST.get('luck')
+	#json_list = json.loads(luck_data, object_hook=object_hook)
+	current_user = User.objects.get(username=request.user)
+	userProfile = current_user.get_profile()
+	ret_date  = userProfile.luckyday
+
+	# TODO: fix to json object to client
+	return HttpResponse(200)	

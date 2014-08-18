@@ -15,8 +15,6 @@ def user_post_save(sender, instance, created, **kwargs):
 	create a user profile when a new account is created
 	"""
 	if created == True:
-		p = UserProfile()
-		p.user = instance
-		p.save()
+		UserProfile.objects.create(user=instance)
 
 post_save.connect(user_post_save, sender=User)
