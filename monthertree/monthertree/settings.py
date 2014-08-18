@@ -100,7 +100,7 @@ INSTALLED_APPS = (
     'times',
     'news',
     'friends',
-    'users',
+    'muser',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -160,7 +160,7 @@ USE_TZ = True
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-AUTH_PROFILE_MODULE = 'users.UserProfile'
+AUTH_PROFILE_MODULE = 'muser.UserProfile'
 
 LOGGING = {
     'version': 1,
@@ -185,6 +185,10 @@ LOGGING = {
         'friends': {
             'handlers': ['file'],
             'level': 'DEBUG'
-        },        
+        }, 
+        'muser': {
+            'handlers': ['file'],
+            'level': 'DEBUG'
+        },      
     },
 }

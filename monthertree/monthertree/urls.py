@@ -13,5 +13,6 @@ urlpatterns = patterns('',
     url(r'^times/', include('times.urls', namespace="times")),
     url(r'^news/', include('news.urls', namespace="news")),
     url(r'^friends/', include('friends.urls', namespace="friends")),
+    url(r'^muser/', include('muser.urls', namespace="muser")),
     url(r"^$", TemplateView.as_view(template_name="homepage.html"), name="home"),
 )

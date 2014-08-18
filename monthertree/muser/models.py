@@ -3,9 +3,12 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 
 class UserProfile(models.Model):
-	user = models.ForeignKey(User, unique=True, verbose_name='extra info')
+	user = models.ForeignKey(User, unique=True)
 
 	luckyday = models.DateField('lucky day', blank=True, null=True)
+
+	def __unicode__(self):
+		return u'Profile of user: %s' % self.user.username
 
 def user_post_save(sender, instance, created, **kwargs):
 	"""
