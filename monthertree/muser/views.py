@@ -21,6 +21,7 @@ def luckyday(request):
 
 	return HttpResponse(200)
 
+@login_required
 def getday(request):
 	logger.debug("request: %s" %request.user)
 
