@@ -28,7 +28,12 @@ def getday(request):
 	#json_list = json.loads(luck_data, object_hook=object_hook)
 	current_user = User.objects.get(username=request.user)
 	userProfile = current_user.get_profile()
-	ret_date  = userProfile.luckyday
+	lucky_date  = userProfile.luckyday
+	ret_data = [
+		{"luckyday": str(lucky_date)},
+	]
+	return HttpResponse(toJSON(ret_data))
 
-	# TODO: fix to json object to client
-	return HttpResponse(200)	
+def toJSON(object):
+	"""Dumps the data represented by the object to JSON for wire transfer."""
+	return json.dumps(object, default=default)
