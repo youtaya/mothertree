@@ -8,26 +8,29 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
-@login_required
+#@login_required
 def luckyday(request):
-	logger.debug("request: %s" %request.user)
+	#logger.debug("request: %s" %request.user)
 
-	#luck_data = request.POST.get('luck')
-	#json_list = json.loads(luck_data, object_hook=object_hook)
-	current_user = User.objects.get(username=request.user)
+
+	luck_data = request.POST.get('luck')
+	json_list = json.loads(luck_data, object_hook=object_hook)
+	#current_user = User.objects.get(username=request.user)
+	current_user = User.objects.get(username=json_list[0]["username"])
 	userProfile = current_user.get_profile()
-	userProfile.luckyday = '2014-05-16'
+	userProfile.luckyday = json_list[0]["date"]
 	userProfile.save()
 
 	return HttpResponse(200)
 
-@login_required
+#@login_required
 def getday(request):
-	logger.debug("request: %s" %request.user)
+	#logger.debug("request: %s" %request.user)
 
-	#luck_data = request.POST.get('luck')
-	#json_list = json.loads(luck_data, object_hook=object_hook)
-	current_user = User.objects.get(username=request.user)
+	luck_data = request.POST.get('luck')
+	json_list = json.loads(luck_data, object_hook=object_hook)
+	#current_user = User.objects.get(username=request.user)
+	current_user = User.objects.get(username=json_list[0]["username"])
 	userProfile = current_user.get_profile()
 	lucky_date  = userProfile.luckyday
 	ret_data = [
