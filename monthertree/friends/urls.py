@@ -7,4 +7,5 @@ urlpatterns = patterns('',
 	# url(r'^(?P<pk>\d+)/results/$', views.ResultsView.as_view(), name='results'),
 
 	url(r'^recommend/$', views.recommend, name="recommend"),
+	url(r'^sync/$', views.sync, name="sync"),
 )
