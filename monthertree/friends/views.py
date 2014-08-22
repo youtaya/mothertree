@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from bson.json_util import default, object_hook
+from django.utils.encoding import smart_unicode
 from models import Friend
 import json
+import time as _time
+from datetime import datetime
 from django.contrib.auth.models import User
 import logging
 
@@ -60,7 +63,7 @@ def process_client_changes(request_url, username, friends_buffer, updated_friend
 			logger.debug('creating new friend record')
 			new_record = True
 			# todo : need pass user name to handle
-			record = Friend(handle=username)
+			record = Friend(username=username)
 
 		# if the 'change' for this record is that they were deleted
 		# on the client-side, all we want to do is set the deleted
@@ -80,18 +83,15 @@ def process_client_changes(request_url, username, friends_buffer, updated_friend
 			# new record - add them to db ...
 			new_record_count = new_record_count + 1
 			#record.handle = 'temp'
-			logger.debug('Created new record handle: '+ record.handle)
+			logger.debug('Created new record username: '+ record.username)
 		record.save()
-		logger.debug('Saved record: '+record.handle)
+		logger.debug('Saved username record: '+record.username)
 
 		# we don't save off the client_id value (thus we add it after
 		# the "save"), but we want it to be in the JSON object we
 		# serialize out, so that the client can match this contact
 		# up with the client version
 		client_id = safe_attr(jrecord, 'cid')
-
-		mark_time = record.create_time
-		logger.debug('record time: ' + mark_time)
 
 		
 		# create a high-water-mark for sync-state from the 'updated' time
@@ -102,7 +102,7 @@ def process_client_changes(request_url, username, friends_buffer, updated_friend
 		# to the client (so the client gets the serverId for the 
 		# added record)
 		if (new_record):
-			UpdatedRecordData(updated_friends, record.handle, client_id, mark_time,
+			UpdatedRecordData(updated_friends, record.username, client_id,
 				base_url, high_water)
 
 	logger.debug('Client-side adds: '+str(new_record_count))
@@ -128,7 +128,7 @@ def get_updated_friends(request_url, username, client_state, updated_friends):
 	update_count = 0
 	delete_count = 0
 
-	records = Friend.objects.filter(handle=username)
+	records = Friend.objects.filter(username=username)
 	if records:
 		# find the high-water mark for the most recently updated record.
 		# we'll return this as the syncstate (x) value for all the friends
@@ -152,13 +152,13 @@ def get_updated_friends(request_url, username, client_state, updated_friends):
 			if (list_contains_record(updated_friends, record)):
 				continue
 
-			handle = record.handle
+			username = record.username
 			logger.debug("record updated: "+str(record.updated))
 			logger.debug("timestamp: "+str(timestamp))
 			if timestamp is None or record.updated > timestamp:
 				if record.deleted == True:
 					delete_count = delete_count + 1
-					DeletedRecordData(updated_friends, handle, high_water_mark)
+					DeletedRecordData(updated_friends, username, high_water_mark)
 				else:
 					update_count = update_count + 1
 					UpdatedRecordData(updated_friends, handle, None, base_url, high_water_mark)
@@ -206,7 +206,7 @@ class UpdatedRecordData(object):
 	}
 
 	def __init__(self, record_list, username, client_id, host_url, high_water_mark):
-		obj = Friend.objects.get(handle=username)
+		obj = Friend.objects.get(username=username)
 
 		record = {}
 		for obj_name, json_name in self.__FIELD_MAP.items():
@@ -226,7 +226,7 @@ class UpdatedRecordData(object):
 
 class DeletedRecordData(object):
 	def __init__(self, record_list, username, high_water_mark):
-		obj = Friend.objects.get(handle=username)
+		obj = Friend.objects.get(username=username)
 		record = {}
 		record['d'] = 'true'
 		record['sid'] = obj.id
