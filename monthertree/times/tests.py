@@ -79,3 +79,26 @@ class syncTests(TestCase):
 		record = Time.objects.get(handle='abc')
 		self.assertEqual(record.link, "temp")
 		self.assertEqual(response.status_code, 200)
+
+	def test_anonyous_share_with_user(self):
+		json_data = {
+			"handle": "temp",
+			"link": "temp",
+			"title": "hello, world",
+			"content": "test for test",
+			"date": "2014-05-15",
+			"time": "2014-05-15 23:12:34",
+			"ctx": 1,
+			"po": "123",
+			"ao": "",
+			"cid": 6,
+		}
+		
+		python_dict = {
+			"username": "temp",
+			"records": json.dumps(json_data, default=default),
+			"target": "anonymous"
+		}
+
+		response = self.client.post(reverse('times:share'),python_dict)
+		self.assertEqual(response.status_code, 200)		

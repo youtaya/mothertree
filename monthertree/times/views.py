@@ -6,6 +6,7 @@ import json
 import time as _time
 from datetime import datetime
 from models import Time
+from django.contrib.auth.models import User
 from forms import UploadFileForm
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -14,6 +15,7 @@ import logging
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.views import generic
+from random import randint
 
 logger = logging.getLogger(__name__)
 
@@ -250,11 +252,23 @@ def resetdb(request):
 
 	return HttpResponse(200)
 
-def process_client_share(records_buffer, target_handle):
+def process_client_anonymous_share(records_buffer, username):
 	
 	jrecord = json.loads(records_buffer, object_hook=object_hook)
 	logger.debug("jsons list: "+ str(jrecord))
-	username = safe_attr(jrecord, 'user')
+	#select random target handle : not user or user's friends
+	totalIds = User.objects.all().count() - 1
+	if totalIds < 1:
+		return
+
+	randomId = randint(0, totalIds)
+	others = User.objects.get(id=randomId)
+	if others.username == username:
+		randomId = randint(0, totalIds)
+		others = User.objects.get(id=randomId)
+	target_handle = others.username
+	logger.debug('target handle: ' + target_handle)
+
 	record = Time(handle=target_handle)
 	
 	record.title = safe_attr(jrecord, 'title')
@@ -272,11 +286,38 @@ def process_client_share(records_buffer, target_handle):
 	record.save()
 	logger.debug('Saved record: '+record.handle)
 
+
+def process_client_share(records_buffer, username, target_handle):
+	
+	jrecord = json.loads(records_buffer, object_hook=object_hook)
+	logger.debug("jsons list: "+ str(jrecord))
+
+	record = Time(handle=target_handle)
+	
+	record.title = safe_attr(jrecord, 'title')
+	
+	record.content = safe_attr(jrecord, 'content')
+	logger.debug('record username: ' + username)
+	record.link = username 
+	record.create_date = timezone.now()
+	record.create_time = timezone.now()
+	record.content_type = safe_attr(jrecord, 'ctx')
+	record.photo = safe_attr(jrecord, 'po')
+	record.audio = safe_attr(jrecord, 'ao')
+	record.deleted = (safe_attr(jrecord, 'del') == 'true')
+
+	record.save()
+	logger.debug('Saved record: '+record.handle)
+
 def share(request):
-	#username = 'temp'
+
+	username = request.POST.get('username')
 	client_buffer = request.POST.get('records')
 	target = request.POST.get('target')
-	process_client_share(client_buffer, target)
+	if target == 'anonymous':
+		process_client_anonymous_share(client_buffer, username)
+	else:
+		process_client_share(client_buffer, username, target)
 	return HttpResponse(200)
 
 @csrf_exempt
