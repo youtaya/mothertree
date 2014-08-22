@@ -161,7 +161,7 @@ def get_updated_friends(request_url, username, client_state, updated_friends):
 					DeletedRecordData(updated_friends, username, high_water_mark)
 				else:
 					update_count = update_count + 1
-					UpdatedRecordData(updated_friends, handle, None, base_url, high_water_mark)
+					UpdatedRecordData(updated_friends, username, None, base_url, high_water_mark)
 
 	logger.debug('Server-side updates: '+str(update_count))
 	logger.debug('Server-side deletes: '+str(delete_count))
