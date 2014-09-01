@@ -259,12 +259,12 @@ def process_client_anonymous_share(records_buffer, username):
 	logger.debug("jsons list: "+ str(jrecord))
 	#select random target handle : not user or user's friends
 	totalIds = User.objects.all().count() - 1
-	if totalIds < 1:
+	if totalIds <= 1:
 		return
 
 	randomId = randint(0, totalIds)
 	others = User.objects.get(id=randomId)
-	if others.username == username:
+	if others.username == username or others.username == 'root':
 		randomId = randint(0, totalIds)
 		others = User.objects.get(id=randomId)
 	target_handle = others.username
@@ -276,6 +276,7 @@ def process_client_anonymous_share(records_buffer, username):
 	
 	record.content = safe_attr(jrecord, 'content')
 	logger.debug('record context: ' + record.content)
+	logger.debug('record username: ' + username)
 	record.link = username 
 	record.create_date = timezone.now()
 	record.create_time = timezone.now()
@@ -306,7 +307,8 @@ def process_client_share(records_buffer, username, target_handle):
 	record.content_type = safe_attr(jrecord, 'ctx')
 	record.photo = safe_attr(jrecord, 'po')
 	record.audio = safe_attr(jrecord, 'ao')
-	record.tag = safe_attr(jrecord, 'tag')
+	if safe_attr(jrecord, 'tag') != None:
+		record.tag = safe_attr(jrecord, 'tag')
 	record.deleted = (safe_attr(jrecord, 'del') == 'true')
 
 	record.save()
