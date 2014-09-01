@@ -77,6 +77,7 @@ def process_client_changes(request_url, username, friends_buffer, updated_friend
 		record.handle = safe_attr(jrecord, 'h')
 		record.username = safe_attr(jrecord, 'u')
 		record.phone_mobile = safe_attr(jrecord, 'p')
+		record.avatar = safe_attr(jrecord, 'a')
 
 		record.deleted = (safe_attr(jrecord, 'd') == 'true')
 		if(new_record):
@@ -202,6 +203,7 @@ class UpdatedRecordData(object):
 		'handle': 'h',
 		'username': 'u',
 		'phone_mobile': 'p',
+		'avatar': 'a',
 		'client_id': 'cid'
 	}
 

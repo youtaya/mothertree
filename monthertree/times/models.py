@@ -10,6 +10,7 @@ class Time(models.Model):
 	content_type = models.IntegerField(default=0)
 	photo = models.ImageField(upload_to='Photo')
 	audio = models.FileField(upload_to='Audio')
+	tag = models.CharField(max_length=200)
 	deleted = models.BooleanField()
 	updated = models.DateTimeField(auto_now_add=True)
 

@@ -92,6 +92,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		record.content_type = safe_attr(jrecord, 'ctx')
 		record.photo = safe_attr(jrecord, 'po')
 		record.audio = safe_attr(jrecord, 'ao')
+		record.tag = safe_attr(jrecord, 'tag')
 		record.deleted = (safe_attr(jrecord, 'del') == 'true')
 		if(new_record):
 			# new record - add them to db ...
@@ -281,6 +282,7 @@ def process_client_anonymous_share(records_buffer, username):
 	record.content_type = safe_attr(jrecord, 'ctx')
 	record.photo = safe_attr(jrecord, 'po')
 	record.audio = safe_attr(jrecord, 'ao')
+	record.tag = safe_attr(jrecord, 'tag')
 	record.deleted = (safe_attr(jrecord, 'del') == 'true')
 
 	record.save()
@@ -304,6 +306,7 @@ def process_client_share(records_buffer, username, target_handle):
 	record.content_type = safe_attr(jrecord, 'ctx')
 	record.photo = safe_attr(jrecord, 'po')
 	record.audio = safe_attr(jrecord, 'ao')
+	record.tag = safe_attr(jrecord, 'tag')
 	record.deleted = (safe_attr(jrecord, 'del') == 'true')
 
 	record.save()
@@ -384,6 +387,7 @@ class UpdatedRecordData(object):
 		'content_type': 'ctx',
 		'photo': 'po',
 		'audio': 'ao',
+		'tag': 'tag',
 		'link': 'link',
 		'client_id': 'cid'
 	}
