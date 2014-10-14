@@ -5,7 +5,7 @@ class Friend(models.Model):
 	username = models.CharField(max_length=200)
 	phone_mobile = models.CharField(max_length=200)
 	avatar = models.ImageField(upload_to='avatar')
-	deleted = models.BooleanField()
+	deleted = models.BooleanField(default=False)
 	updated = models.DateTimeField(auto_now_add=True)
 
 

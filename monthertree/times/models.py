@@ -11,7 +11,7 @@ class Time(models.Model):
 	photo = models.ImageField(upload_to='Photo')
 	audio = models.FileField(upload_to='Audio')
 	tag = models.CharField(max_length=200)
-	deleted = models.BooleanField()
+	deleted = models.BooleanField(default=False)
 	updated = models.DateTimeField(auto_now_add=True)
 
 
@@ -24,4 +24,3 @@ class Time(models.Model):
 			query = cls.objects.get(create_time=time)
 			return query
 		return None
-	
