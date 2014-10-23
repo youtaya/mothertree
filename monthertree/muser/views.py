@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
-from bson.json_util import default, object_hook
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from muser.models import UserProfile
@@ -14,7 +13,7 @@ def luckyday(request):
 
 
 	luck_data = request.POST.get('luck')
-	json_list = json.loads(luck_data, object_hook=object_hook)
+	json_list = json.loads(luck_data)
 	#current_user = User.objects.get(username=request.user)
 	current_user = User.objects.get(username=json_list[0]["username"])
 	userProfile = current_user.get_profile()
@@ -28,7 +27,7 @@ def getday(request):
 	#logger.debug("request: %s" %request.user)
 
 	luck_data = request.POST.get('luck')
-	json_list = json.loads(luck_data, object_hook=object_hook)
+	json_list = json.loads(luck_data)
 	#current_user = User.objects.get(username=request.user)
 	current_user = User.objects.get(username=json_list[0]["username"])
 	userProfile = current_user.get_profile()
@@ -40,4 +39,4 @@ def getday(request):
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return json.dumps(object, default=default)
+	return json.dumps(object, ensure_ascii=False)

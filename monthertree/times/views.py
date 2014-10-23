@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from bson.json_util import default, object_hook
 import json
 import time as _time
 from datetime import datetime
@@ -38,7 +37,7 @@ def list_contains_record(record_list, record):
 		if ((next != None) and (next['sid'] == record_id)):
 			return True
 	return False
-	
+
 def safe_attr(obj, attr_name):
 	if attr_name in obj:
 		return obj[attr_name]
@@ -51,7 +50,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 	# build an array of generic objects containing contact data,
 	# using the Django built-in JSON parser
 	logger.debug('Uploaded records buffer: ' + smart_unicode(records_buffer))
-	json_list = json.loads(records_buffer, object_hook=object_hook)
+	json_list = json.loads(records_buffer)
 	logger.debug('Client-side updates: ' + str(len(json_list)))
 
 	# keep track of the number of new records the client sent to us,
@@ -111,13 +110,13 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		mark_time = record.create_time
 		logger.debug('record time: ' + mark_time)
 
-		
+
 		# create a high-water-mark for sync-state from the 'updated' time
 		# for this record, so we return the corrent value to the client.
 		high_water = str(long(_time.mktime(record.updated.utctimetuple())) + 1)
 
 		# add new records to our updated_records, so that we return them
-		# to the client (so the client gets the serverId for the 
+		# to the client (so the client gets the serverId for the
 		# added record)
 		if (new_record):
 			UpdatedRecordData(updated_records, record.handle, client_id, mark_time,
@@ -199,7 +198,7 @@ def sync(request):
 
 	if((client_buffer != None) and (client_buffer != '')):
 		process_client_changes(request_url, username, client_buffer, updated_records)
-	
+
 
 
 	# add any records on the server-side
@@ -254,8 +253,8 @@ def resetdb(request):
 	return HttpResponse(200)
 
 def process_client_anonymous_share(records_buffer, username):
-	
-	jrecord = json.loads(records_buffer, object_hook=object_hook)
+
+	jrecord = json.loads(records_buffer)
 	logger.debug("jsons list: "+ str(jrecord))
 	#select random target handle : not user or user's friends
 	totalIds = User.objects.all().count() - 1
@@ -271,13 +270,13 @@ def process_client_anonymous_share(records_buffer, username):
 	logger.debug('target handle: ' + target_handle)
 
 	record = Time(handle=target_handle)
-	
+
 	record.title = safe_attr(jrecord, 'title')
-	
+
 	record.content = safe_attr(jrecord, 'content')
 	logger.debug('record context: ' + record.content)
 	logger.debug('record username: ' + username)
-	record.link = username 
+	record.link = username
 	record.create_date = timezone.now()
 	record.create_time = timezone.now()
 	record.content_type = safe_attr(jrecord, 'ctx')
@@ -291,17 +290,17 @@ def process_client_anonymous_share(records_buffer, username):
 
 
 def process_client_share(records_buffer, username, target_handle):
-	
-	jrecord = json.loads(records_buffer, object_hook=object_hook)
+
+	jrecord = json.loads(records_buffer)
 	logger.debug("jsons list: "+ str(jrecord))
 
 	record = Time(handle=target_handle)
-	
+
 	record.title = safe_attr(jrecord, 'title')
-	
+
 	record.content = safe_attr(jrecord, 'content')
 	logger.debug('record username: ' + username)
-	record.link = username 
+	record.link = username
 	record.create_date = timezone.now()
 	record.create_time = timezone.now()
 	record.content_type = safe_attr(jrecord, 'ctx')
@@ -338,12 +337,12 @@ def photo(request):
 			return HttpResponse(200)
 		else:
 			return HttpResponse('invalid image')
-	
+
 	if request.method == "GET":
 		return render(request, 'times/photo.html')
-	
+
 def save_file(file, path=''):
-	
+
 	filename = file._get_name()
 	logger.debug("[photo]save image: "+filename)
 
@@ -354,7 +353,7 @@ def save_file(file, path=''):
 
 def photoView(request, image_name):
     """
-    Processes request to view photo. 
+    Processes request to view photo.
     It just returns the raw image itself.
     """
     logger.debug("iamge name : "+str(image_name))
@@ -364,7 +363,7 @@ def photoView(request, image_name):
 
 def photoView2(request):
     """
-    Processes request to view photo. 
+    Processes request to view photo.
     It just returns the raw image itself.
     """
 
@@ -373,7 +372,7 @@ def photoView2(request):
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return json.dumps(object, default=default)
+	return json.dumps(object, ensure_ascii=False)
 
 class UpdatedRecordData(object):
 	"""Holds data for user's records.
@@ -422,4 +421,4 @@ class DeletedRecordData(object):
 		record['del'] = 'true'
 		record['sid'] = obj.id
 		record['x'] = high_water_mark
-		record_list.append(record)		
+		record_list.append(record)

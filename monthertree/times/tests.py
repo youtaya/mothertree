@@ -3,7 +3,6 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 from models import Time
 from django.utils import timezone
-from bson.json_util import default, object_hook
 import json
 import logging
 
@@ -25,7 +24,7 @@ class syncTests(TestCase):
 				"ctx": 1,
 				"po": "123",
 				"ao": "",
-				"cid": 5, 
+				"cid": 5,
 				"dirty": 'true',
 				"deleted": 'false',
 			},
@@ -39,16 +38,16 @@ class syncTests(TestCase):
 				"ctx": 1,
 				"po": "",
 				"ao": "234",
-				"cid": 6, 
+				"cid": 6,
 				"dirty": 'true',
 				"deleted": 'false',
-			},			
+			},
 		]
 		python_dict = {
 			"username": "temp",
-			"records": json.dumps(json_data, default=default),
+			"records": json.dumps(json_data, ensure_ascii=False),
 		}
-		response = self.client.post(reverse('times:sync') 
+		response = self.client.post(reverse('times:sync')
 			,python_dict)
 			#content_type="application/json")
 		self.assertEqual(response.content, "ok")
@@ -68,10 +67,10 @@ class syncTests(TestCase):
 			"ao": "",
 			"cid": 6,
 		}
-		
+
 		python_dict = {
 			"username": "temp",
-			"records": json.dumps(json_data, default=default),
+			"records": json.dumps(json_data, ensure_ascii=False),
 			"target": "abc"
 		}
 
@@ -93,12 +92,12 @@ class syncTests(TestCase):
 			"ao": "",
 			"cid": 6,
 		}
-		
+
 		python_dict = {
 			"username": "temp",
-			"records": json.dumps(json_data, default=default),
+			"records": json.dumps(json_data, ensure_ascii=False),
 			"target": "anonymous"
 		}
 
 		response = self.client.post(reverse('times:share'),python_dict)
-		self.assertEqual(response.status_code, 200)		
+		self.assertEqual(response.status_code, 200)

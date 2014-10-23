@@ -3,14 +3,13 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 from models import Friend
 from django.utils import timezone
-from bson.json_util import default, object_hook
 import json
 import logging
 
 class recommendTests(TestCase):
 	def test_recommend(self):
 		response = self.client.get(reverse('friends:recommend'))
-		json_list = json.loads(response.content, object_hook=object_hook)
+		json_list = json.loads(response.content)
 		for friend in json_list:
 			self.assertEqual(friend['username'], 0)
 
@@ -20,7 +19,7 @@ class recommendTests(TestCase):
 				"h": "temp",
 				"u": "james",
 				"p": "123456789",
-				"cid": 5, 
+				"cid": 5,
 				"dirty": 'true',
 				"d": 'false',
 			},
@@ -28,18 +27,18 @@ class recommendTests(TestCase):
 				"h": "temp",
 				"u": "amrk",
 				"p": "0569786321",
-				"cid": 6, 
+				"cid": 6,
 				"dirty": 'true',
 				"d": 'false',
-			},			
+			},
 		]
 		python_dict = {
 			"username": "temp",
-			"friends": json.dumps(json_data, default=default),
+			"friends": json.dumps(json_data, ensure_ascii=False),
 		}
-		response = self.client.post(reverse('friends:sync') 
+		response = self.client.post(reverse('friends:sync')
 			,python_dict)
 			#content_type="application/json")
 		self.assertEqual(response.content, "ok")
 		records = Friend.objects.all()
-		self.assertEqual(len(records), 1)			
+		self.assertEqual(len(records), 1)

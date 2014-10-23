@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
-from bson.json_util import default, object_hook
 from django.utils.encoding import smart_unicode
 from models import Friend
 import json
@@ -32,7 +31,7 @@ def list_contains_record(record_list, record):
 		if ((next != None) and (next['sid'] == record_id)):
 			return True
 	return False
-	
+
 def safe_attr(obj, attr_name):
 	if attr_name in obj:
 		return obj[attr_name]
@@ -45,7 +44,7 @@ def process_client_changes(request_url, username, friends_buffer, updated_friend
 	# build an array of generic objects containing contact data,
 	# using the Django built-in JSON parser
 	logger.debug('Uploaded friends buffer: ' + smart_unicode(friends_buffer))
-	json_list = json.loads(friends_buffer, object_hook=object_hook)
+	json_list = json.loads(friends_buffer)
 	logger.debug('Client-side updates: ' + str(len(json_list)))
 
 	# keep track of the number of new records the client sent to us,
@@ -94,13 +93,13 @@ def process_client_changes(request_url, username, friends_buffer, updated_friend
 		# up with the client version
 		client_id = safe_attr(jrecord, 'cid')
 
-		
+
 		# create a high-water-mark for sync-state from the 'updated' time
 		# for this record, so we return the corrent value to the client.
 		high_water = str(long(_time.mktime(record.updated.utctimetuple())) + 1)
 
 		# add new records to our updated_friends, so that we return them
-		# to the client (so the client gets the serverId for the 
+		# to the client (so the client gets the serverId for the
 		# added record)
 		if (new_record):
 			UpdatedRecordData(updated_friends, record.username, client_id,
@@ -181,7 +180,7 @@ def sync(request):
 
 	if((client_buffer != None) and (client_buffer != '')):
 		process_client_changes(request_url, username, client_buffer, updated_friends)
-	
+
 	# add any friends on the server-side
 	client_state = request.POST.get('syncstate')
 	get_updated_friends(request_url, username, client_state, updated_friends)
@@ -192,7 +191,7 @@ def sync(request):
 
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return json.dumps(object, default=default)
+	return json.dumps(object, ensure_ascii=False)
 
 class UpdatedRecordData(object):
 	"""Holds data for user's records.
@@ -233,4 +232,4 @@ class DeletedRecordData(object):
 		record['d'] = 'true'
 		record['sid'] = obj.id
 		record['x'] = high_water_mark
-		record_list.append(record)		
+		record_list.append(record)

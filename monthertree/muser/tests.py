@@ -4,7 +4,6 @@ from django.test.client import Client
 from models import UserProfile
 from django.utils import timezone
 from django.contrib.auth.models import User
-from bson.json_util import default, object_hook
 import json
 import logging
 
@@ -19,9 +18,9 @@ class userProfileTests(TestCase):
 			},
 		]
 		python_dict = {
-			"luck": json.dumps(json_data, default=default),
+			"luck": json.dumps(json_data, ensure_ascii=False),
 		}
-		response = self.client.post(reverse('muser:luckyday') 
+		response = self.client.post(reverse('muser:luckyday')
 			,python_dict)
 
 		#self.assertEqual(response.content, "200")
@@ -37,9 +36,9 @@ class userProfileTests(TestCase):
 			},
 		]
 		python_dict = {
-			"luck": json.dumps(json_data, default=default),
+			"luck": json.dumps(json_data, ensure_ascii=False),
 		}
-		response = self.client.post(reverse('muser:luckyday') 
+		response = self.client.post(reverse('muser:luckyday')
 			,python_dict)
 
 		json_data = [
@@ -48,11 +47,8 @@ class userProfileTests(TestCase):
 			},
 		]
 		python_dict = {
-			"luck": json.dumps(json_data, default=default),
+			"luck": json.dumps(json_data, ensure_ascii=False),
 		}
 		response = self.client.post(reverse('muser:getday'), python_dict)
 
 		self.assertEqual(response.content, "200")
-
-
-
