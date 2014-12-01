@@ -48,7 +48,6 @@ def process_client_anonymous_share(records_buffer, username):
     record.content_type = safe_attr(jrecord, 'ctx')
     record.photo = safe_attr(jrecord, 'po')
     record.audio = safe_attr(jrecord, 'ao')
-    record.tag = safe_attr(jrecord, 'tag')
     record.deleted = (safe_attr(jrecord, 'del') == 'true')
 
     record.save()
@@ -72,8 +71,6 @@ def process_client_share(records_buffer, username, target_handle):
     record.content_type = safe_attr(jrecord, 'ctx')
     record.photo = safe_attr(jrecord, 'po')
     record.audio = safe_attr(jrecord, 'ao')
-    if safe_attr(jrecord, 'tag') != None:
-        record.tag = safe_attr(jrecord, 'tag')
     record.deleted = (safe_attr(jrecord, 'del') == 'true')
 
     record.save()
