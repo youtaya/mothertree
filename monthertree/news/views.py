@@ -1,12 +1,21 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
+from django.utils import timezone
+from datetime import timedelta
 import json
 
 def today(request):
-	today_news = [
-		{"news": "No news is good news."},
-		{"news": "The great use of life is to spend it for something that overlasts it."},
-	]
+	cTime = timezone.localtime(timezone.now())
+	nextDelta = timedelta(days = 1)
+	nextTime = cTime + nextDelta
+	today_news = {
+		"news": [
+			{"info":"No news is good news."},
+			{"info":"The great use of life is to spend it for something that overlasts it."}
+		],
+		"create_time": str(cTime.date()),
+		"expired_time": str(nextTime.date())
+	}
 	# scrapy today news from web
 	return HttpResponse(toJSON(today_news))
 
