@@ -10,9 +10,9 @@ def today(request):
 	nextTime = cTime + nextDelta
 	today_news = {
 		"news": [
-			{"info":"Failure is not  fatal, but failure to change might be."},
-			{"info":"The great use of life is to spend it for something that overlasts it."},
-			{"info":"All you want to say will definitely be received by one in the world.\
+			{"one":"Failure is not  fatal, but failure to change might be."},
+			{"two":"The great use of life is to spend it for something that overlasts it."},
+			{"three":"All you want to say will definitely be received by one in the world.\
 			Would cease your desperation a little."}
 		],
 		"create_time": str(cTime.date()),
