@@ -14,5 +14,6 @@ urlpatterns = patterns('',
     url(r'^news/', include('news.urls', namespace="news")),
     url(r'^friends/', include('friends.urls', namespace="friends")),
     url(r'^muser/', include('muser.urls', namespace="muser")),
+    url(r'^dialogs/', include('dialogs.urls', namespace="dialogs")),
     url(r"^$", TemplateView.as_view(template_name="homepage.html"), name="home"),
 )

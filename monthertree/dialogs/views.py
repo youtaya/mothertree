@@ -6,7 +6,7 @@ import time as _time
 from datetime import datetime
 from models import Dialog
 from django.contrib.auth.models import User
-from forms import UploadFileForm
+from times.forms import UploadFileForm
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.utils.encoding import smart_unicode

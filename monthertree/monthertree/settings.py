@@ -114,6 +114,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
 
     'account.context_processors.account',
+    "pinax_theme_bootstrap.context_processors.theme",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -185,10 +186,10 @@ LOGGING = {
         'friends': {
             'handlers': ['file'],
             'level': 'DEBUG'
-        }, 
+        },
         'muser': {
             'handlers': ['file'],
             'level': 'DEBUG'
-        },      
+        },
     },
 }
