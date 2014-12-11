@@ -18,6 +18,11 @@ from random import randint
 
 logger = logging.getLogger(__name__)
 
+def safe_attr(obj, attr_name):
+	if attr_name in obj:
+		return obj[attr_name]
+	return None
+    
 def process_client_anonymous_share(records_buffer, username):
 
     jrecord = json.loads(records_buffer)

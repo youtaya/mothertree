@@ -28,7 +28,7 @@ class shareTests(TestCase):
 		}
 
 		response = self.client.post(reverse('dialogs:share'),python_dict)
-		record = Time.objects.get(handle='abc')
+		record = Dialog.objects.get(handle='abc')
 		self.assertEqual(record.link, "temp")
 		self.assertEqual(response.status_code, 200)
 

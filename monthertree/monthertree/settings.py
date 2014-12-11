@@ -101,6 +101,7 @@ INSTALLED_APPS = (
     'news',
     'friends',
     'muser',
+    'dialogs',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -188,6 +189,10 @@ LOGGING = {
             'level': 'DEBUG'
         },
         'muser': {
+            'handlers': ['file'],
+            'level': 'DEBUG'
+        },
+        'dialogs': {
             'handlers': ['file'],
             'level': 'DEBUG'
         },

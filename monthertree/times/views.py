@@ -91,7 +91,8 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		record.content_type = safe_attr(jrecord, 'ctx')
 		record.photo = safe_attr(jrecord, 'po')
 		record.audio = safe_attr(jrecord, 'ao')
-		record.tag = safe_attr(jrecord, 'tag')
+		if(None != safe_attr(jrecord, 'tag')):
+			record.tag = safe_attr(jrecord, 'tag')
 		record.deleted = (safe_attr(jrecord, 'del') == 'true')
 		if(new_record):
 			# new record - add them to db ...
@@ -250,78 +251,6 @@ def resetdb(request):
 		deleted=False)
 	record2.save()
 
-	return HttpResponse(200)
-
-def process_client_anonymous_share(records_buffer, username):
-
-	jrecord = json.loads(records_buffer)
-	logger.debug("jsons list: "+ str(jrecord))
-	#select random target handle : not user or user's friends
-	totalIds = User.objects.all().count() - 1
-	if totalIds <= 1:
-		return
-
-	randomId = randint(0, totalIds)
-	others = User.objects.get(id=randomId)
-	if others.username == username or others.username == 'root':
-		randomId = randint(0, totalIds)
-		others = User.objects.get(id=randomId)
-	target_handle = others.username
-	logger.debug('target handle: ' + target_handle)
-
-	record = Time(handle=target_handle)
-
-	record.title = safe_attr(jrecord, 'title')
-
-	record.content = safe_attr(jrecord, 'content')
-	logger.debug('record context: ' + record.content)
-	logger.debug('record username: ' + username)
-	record.link = username
-	record.create_date = timezone.now()
-	record.create_time = timezone.now()
-	record.content_type = safe_attr(jrecord, 'ctx')
-	record.photo = safe_attr(jrecord, 'po')
-	record.audio = safe_attr(jrecord, 'ao')
-	record.tag = safe_attr(jrecord, 'tag')
-	record.deleted = (safe_attr(jrecord, 'del') == 'true')
-
-	record.save()
-	logger.debug('Saved record: '+record.handle)
-
-
-def process_client_share(records_buffer, username, target_handle):
-
-	jrecord = json.loads(records_buffer)
-	logger.debug("jsons list: "+ str(jrecord))
-
-	record = Time(handle=target_handle)
-
-	record.title = safe_attr(jrecord, 'title')
-
-	record.content = safe_attr(jrecord, 'content')
-	logger.debug('record username: ' + username)
-	record.link = username
-	record.create_date = timezone.now()
-	record.create_time = timezone.now()
-	record.content_type = safe_attr(jrecord, 'ctx')
-	record.photo = safe_attr(jrecord, 'po')
-	record.audio = safe_attr(jrecord, 'ao')
-	if safe_attr(jrecord, 'tag') != None:
-		record.tag = safe_attr(jrecord, 'tag')
-	record.deleted = (safe_attr(jrecord, 'del') == 'true')
-
-	record.save()
-	logger.debug('Saved record: '+record.handle)
-
-def share(request):
-
-	username = request.POST.get('username')
-	client_buffer = request.POST.get('records')
-	target = request.POST.get('target')
-	if target == 'anonymous':
-		process_client_anonymous_share(client_buffer, username)
-	else:
-		process_client_share(client_buffer, username, target)
 	return HttpResponse(200)
 
 @csrf_exempt
