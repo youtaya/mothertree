@@ -40,22 +40,22 @@ def jpush_send_message(push_src, push_target, id):
 def pack_dialog_json(item):
 	pack_data = {}
 
-	pack_data['handle'] = item.hanle
+	pack_data['handle'] = item.handle
 	pack_data['link'] = item.link
 	pack_data['direct'] = item.direct
 	pack_data['content'] = item.content
 	pack_data['create_date'] = item.create_date
 	pack_data['create_time'] = item.create_time
 	pack_data['content_type'] = item.content_type
-	pack_data['photo'] = item.photo
-	pack_data['audio'] = item.audio
 
 	return pack_data
 
 def get_dialog(request):
 	username = request.POST.get('username')
 	get_id = request.POST.get('id')
-	dialog_item = Dialog.objects.get(id=get_id)
+	logger.debug("get id: "+ str(get_id))
+
+	dialog_item = Dialog.objects.get(handle=username, id=get_id)
 	data = pack_dialog_json(dialog_item)
 	return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
 
@@ -127,3 +127,28 @@ def share(request):
     else:
         process_client_share(client_buffer, username, target)
     return HttpResponse(200)
+
+def resetdb(request):
+	records = Dialog.objects.all()
+	for record in records:
+		record.delete()
+
+	record1 = Dialog(handle='temp',
+		content="what's thsis",
+		create_date=timezone.now(),
+		create_time=timezone.now(),
+		content_type=1,
+		link="temp",
+		deleted=False)
+	record1.save()
+
+	record2 = Dialog(handle='temp',
+		content="time filping",
+		create_date=timezone.now(),
+		create_time=timezone.now(),
+		content_type=1,
+		link="temp",
+		deleted=False)
+	record2.save()
+
+	return HttpResponse(200)

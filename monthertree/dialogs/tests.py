@@ -7,6 +7,10 @@ import json
 import logging
 
 class shareTests(TestCase):
+
+	def set_up(self):
+		pass
+
 	def test_share_with_user(self):
 		json_data = {
 			"handle": "temp",
@@ -54,3 +58,14 @@ class shareTests(TestCase):
 
 		response = self.client.post(reverse('dialogs:share'),python_dict)
 		self.assertEqual(response.status_code, 200)
+
+	def test_get_dialog(self):
+		# for init db
+		response = self.client.post(reverse('dialogs:reset'))
+
+		python_dict = {
+			"username": "temp",
+			"id": 1,
+		}
+		response = self.client.post(reverse('dialogs:getdialog'),python_dict)
+		self.assertEqual(response.content, "ok")
