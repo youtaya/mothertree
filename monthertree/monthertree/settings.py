@@ -90,16 +90,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # account add by jinxp
-    'account',
-    'metron',
-    'bootstrapform',
-    'pinax_theme_bootstrap',
-
     # our app add by jinxp
     'times',
     'news',
     'friends',
+    'users',
     'muser',
     'dialogs',
 )
@@ -114,8 +109,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     'django.contrib.auth.context_processors.auth',
 
-    'account.context_processors.account',
-    "pinax_theme_bootstrap.context_processors.theme",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -126,9 +119,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # add for account by jinxp
-    'account.middleware.LocaleMiddleware',
-    'account.middleware.TimezoneMiddleware',
 )
 
 ROOT_URLCONF = 'monthertree.urls'
@@ -159,8 +149,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 AUTH_PROFILE_MODULE = 'muser.UserProfile'
 

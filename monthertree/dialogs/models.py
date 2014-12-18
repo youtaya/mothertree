@@ -1,6 +1,7 @@
 from django.db import models
 
 class Dialog(models.Model):
+    id = models.AutoField(primary_key=True)
     handle = models.CharField(max_length=100)
     room_name = models.CharField(max_length=100)
     link = models.CharField(max_length=100)

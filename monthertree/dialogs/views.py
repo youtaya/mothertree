@@ -78,9 +78,9 @@ class PackDialogData(object):
 def get_dialog(request):
 	username = request.POST.get('username')
 	get_id = request.POST.get('id')
-	logger.debug("get id: "+ get_id)
+	logger.debug("username: "+username+"get id: "+ get_id)
 
-	dialog_item = Dialog.objects.get(handle=username, id=int(get_id))
+	dialog_item = Dialog.objects.get(link=username, id=int(get_id))
 	data = pack_dialog_json(dialog_item)
 	return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
 

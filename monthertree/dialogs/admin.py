@@ -5,7 +5,7 @@ from dialogs.models import Dialog
 class DialogAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields':['handle', 'link']}),
-        ('Room Name', {'fields': ['roome_name']}),
+        ('Room Name', {'fields': ['room_name']}),
         (None, {'fields': ['content']}),
         ('Create Date', {'fields':['create_date']}),
         ('Create Time', {'fields':['create_time']}),
