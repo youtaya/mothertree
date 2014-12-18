@@ -33,7 +33,7 @@ def jpush_send_message(push_src, push_target, id):
 		# push_target may user account or phone number
 		jpush.tag(push_target)
 	)
-	push.message = jpush.message(msg_content=201, extras=str(push_src))
+	push.message = jpush.message(msg_content=id, extras=str(push_src))
 	push.platform = jpush.all_
 	push.send()
 
@@ -78,9 +78,9 @@ class PackDialogData(object):
 def get_dialog(request):
 	username = request.POST.get('username')
 	get_id = request.POST.get('id')
-	logger.debug("get id: "+ str(get_id))
+	logger.debug("get id: "+ get_id)
 
-	dialog_item = Dialog.objects.get(handle=username, id=get_id)
+	dialog_item = Dialog.objects.get(handle=username, id=int(get_id))
 	data = pack_dialog_json(dialog_item)
 	return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
 
@@ -118,7 +118,7 @@ def process_client_anonymous_share(records_buffer, username):
 
     record.save()
     logger.debug('Saved record: '+record.handle)
-
+    jpush_send_message(username, target_handle, record.id)
 
 def process_client_share(records_buffer, username, target_handle):
 
@@ -141,6 +141,7 @@ def process_client_share(records_buffer, username, target_handle):
 
     record.save()
     logger.debug('Saved record: '+record.handle)
+    jpush_send_message(username, target_handle, record.id)
 
 def share(request):
 
