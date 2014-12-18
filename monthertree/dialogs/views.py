@@ -39,16 +39,41 @@ def jpush_send_message(push_src, push_target, id):
 
 def pack_dialog_json(item):
 	pack_data = {}
-
-	pack_data['handle'] = item.handle
-	pack_data['link'] = item.link
-	pack_data['direct'] = item.direct
-	pack_data['content'] = item.content
-	pack_data['create_date'] = item.create_date
-	pack_data['create_time'] = item.create_time
-	pack_data['content_type'] = item.content_type
+	PackDialogData(pack_data, item)
 
 	return pack_data
+
+class PackDialogData(object):
+	"""Holds data for user's records.
+
+	This class knows how to serialize itself to JSON.
+	"""
+	__FIELD_MAP = {
+		'handle': 'user',
+		'room_name': 'room',
+		'link': 'link',
+		'content': 'content',
+		'create_date': 'date',
+		'create_time': 'time',
+		'content_type': 'ctx',
+		'photo': 'po',
+		'audio': 'ao',
+		'direct': 'dir',
+		'client_id': 'cid'
+	}
+
+	def __init__(self, pack_data, dialog_item):
+
+		for obj_name, json_name in self.__FIELD_MAP.items():
+			if hasattr(dialog_item, obj_name):
+				v = getattr(dialog_item, obj_name)
+				if (v != None):
+					pack_data[json_name] = smart_unicode(v)
+				else:
+					pack_data[json_name] = None
+
+		pack_data['sid'] = str(dialog_item.id)
+		#pack_data['x'] = high_water_mark
 
 def get_dialog(request):
 	username = request.POST.get('username')
