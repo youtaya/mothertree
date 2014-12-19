@@ -51,6 +51,7 @@ class PackDialogData(object):
 	__FIELD_MAP = {
 		'handle': 'user',
 		'room_name': 'room',
+		'sender': 'sender',
 		'link': 'link',
 		'content': 'content',
 		'create_date': 'date',
@@ -58,7 +59,6 @@ class PackDialogData(object):
 		'content_type': 'ctx',
 		'photo': 'po',
 		'audio': 'ao',
-		'direct': 'dir',
 		'client_id': 'cid'
 	}
 
@@ -108,7 +108,8 @@ def process_client_anonymous_share(records_buffer, username):
     record.content = safe_attr(jrecord, 'content')
     logger.debug('record context: ' + record.content)
     logger.debug('record username: ' + username)
-    record.link = username
+	record.sender = username
+    record.link = others.username
     record.create_date = timezone.now()
     record.create_time = timezone.now()
     record.content_type = safe_attr(jrecord, 'ctx')
@@ -131,7 +132,8 @@ def process_client_share(records_buffer, username, target_handle):
 
     record.content = safe_attr(jrecord, 'content')
     logger.debug('record username: ' + username)
-    record.link = username
+	record.sender = username
+    record.link = target_handle
     record.create_date = timezone.now()
     record.create_time = timezone.now()
     record.content_type = safe_attr(jrecord, 'ctx')
