@@ -80,7 +80,7 @@ def get_dialog(request):
 	get_id = request.POST.get('id')
 	logger.debug("username: "+username+"get id: "+ get_id)
 
-	dialog_item = Dialog.objects.get(link=username, id=int(get_id))
+	dialog_item = Dialog.objects.get(sender=username, id=int(get_id))
 	data = pack_dialog_json(dialog_item)
 	return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
 
@@ -103,12 +103,10 @@ def process_client_anonymous_share(records_buffer, username):
 
     record = Dialog(handle=target_handle)
 
-    record.title = safe_attr(jrecord, 'title')
-
     record.content = safe_attr(jrecord, 'content')
     logger.debug('record context: ' + record.content)
     logger.debug('record username: ' + username)
-	record.sender = username
+    record.sender = safe_attr(jrecord, 'sender')
     record.link = others.username
     record.create_date = timezone.now()
     record.create_time = timezone.now()
@@ -128,12 +126,10 @@ def process_client_share(records_buffer, username, target_handle):
 
     record = Dialog(handle=target_handle)
 
-    record.title = safe_attr(jrecord, 'title')
-
     record.content = safe_attr(jrecord, 'content')
     logger.debug('record username: ' + username)
-	record.sender = username
-    record.link = target_handle
+    record.sender = safe_attr(jrecord, 'sender')
+    record.link = safe_attr(jrecord, 'link')
     record.create_date = timezone.now()
     record.create_time = timezone.now()
     record.content_type = safe_attr(jrecord, 'ctx')
