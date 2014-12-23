@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 import json
 import time as _time
-from datetime import datetime
+from datetime import datetime, date
 from models import Time
 from django.contrib.auth.models import User
 from forms import UploadFileForm
@@ -42,6 +42,9 @@ def safe_attr(obj, attr_name):
 	if attr_name in obj:
 		return obj[attr_name]
 	return None
+
+def get_date(create_date):
+	return datetime.strptime(create_date, "%Y-%m-%d").date()
 
 def process_client_changes(request_url, username, records_buffer, updated_records):
 	logger.debug('* Processing client changes')
@@ -84,7 +87,8 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		record.title = safe_attr(jrecord, 'title')
 		logger.debug('record title: ' + str(record.title))
 		record.content = safe_attr(jrecord, 'content')
-		record.create_date = safe_attr(jrecord, 'date')
+		#record.create_date = datetime.date(safe_attr(jrecord, 'date'))
+		record.create_date = get_date(safe_attr(jrecord, 'date'))
 		record.create_time = safe_attr(jrecord, 'time')
 		#record.create_date = timezone.now()
 		#record.create_time = timezone.now()
@@ -210,6 +214,22 @@ def sync(request):
 	# update latest records
 	#HttpResponse.status(200)
 	return HttpResponse(toJSON(updated_records))
+
+def get_visit_records(user_name, friend_name, last_date, records):
+	filter_records = Time.objects.filter(
+			handle=friend_name).filter(
+			create_date__gte=get_date(last_date))
+
+def visit(request):
+	user_name = request.POST.get('username')
+	friend_name = request.POST.get('friend')
+	last_date = request.POST.get('lastdate')
+
+	records = []
+	# get friend's records that after last date
+	get_visit_records(user_name, friend_name, last_date, records)
+	logger.debug("visit records are : "+toJSON(records))
+	return HttpResponse(toJSON(records))
 
 def addrecord(request):
 	# for test

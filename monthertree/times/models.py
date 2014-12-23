@@ -5,7 +5,7 @@ class Time(models.Model):
 	link = models.CharField(max_length=100)
 	title = models.CharField(max_length=200)
 	content = models.CharField(max_length=300)
-	create_date = models.CharField(max_length=200)
+	create_date = models.DateField()
 	create_time = models.CharField(max_length=200)
 	content_type = models.IntegerField(default=0)
 	photo = models.ImageField(upload_to='Photo')
