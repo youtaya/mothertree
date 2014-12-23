@@ -53,3 +53,14 @@ class syncTests(TestCase):
 		self.assertEqual(response.content, "ok")
 		records = Time.objects.all()
 		self.assertEqual(len(records), 1)
+
+	def test_visit_with_user(self):
+
+		response = self.client.post(reverse('times:reset'))
+
+		python_dict = {
+			"friend": "temp",
+		}
+		response = self.client.post(reverse('times:visit')
+			,python_dict)
+		self.assertEqual(response.content, "ok")

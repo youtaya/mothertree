@@ -220,11 +220,17 @@ def get_visit_records(user_name, friend_name, last_date, records):
 			handle=friend_name).filter(
 			create_date__gte=get_date(last_date))
 
+	if filter_records:
+		for record in filter_records:
+			PackedRecordData(records,record)
+
 def visit(request):
 	user_name = request.POST.get('username')
 	friend_name = request.POST.get('friend')
 	last_date = request.POST.get('lastdate')
 
+	if(last_date == None):
+		last_date = '1970-1-1'
 	records = []
 	# get friend's records that after last date
 	get_visit_records(user_name, friend_name, last_date, records)
@@ -322,6 +328,38 @@ def photoView2(request):
 def toJSON(object):
 	"""Dumps the data represented by the object to JSON for wire transfer."""
 	return json.dumps(object, ensure_ascii=False)
+
+class PackedRecordData(object):
+	"""Holds data for user's records.
+
+	This class knows how to serialize itself to JSON.
+	"""
+	__FIELD_MAP = {
+		'handle': 'user',
+		'title': 'title',
+		'content': 'content',
+		'create_date': 'date',
+		'create_time': 'time',
+		'content_type': 'ctx',
+		'photo': 'po',
+		'audio': 'ao',
+		'tag': 'tag',
+		'link': 'link',
+		'client_id': 'cid'
+	}
+
+	def __init__(self, record_list, obj):
+
+		record = {}
+		for obj_name, json_name in self.__FIELD_MAP.items():
+			if hasattr(obj, obj_name):
+				v = getattr(obj, obj_name)
+				if (v != None):
+					record[json_name] = smart_unicode(v)
+				else:
+					record[json_name] = None
+
+		record_list.append(record)
 
 class UpdatedRecordData(object):
 	"""Holds data for user's records.
