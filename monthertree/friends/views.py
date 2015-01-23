@@ -22,6 +22,19 @@ def recommend(request):
 	# scrapy today news from web
 	return HttpResponse(toJSON(recommend_friends))
 
+def add_friend(request):
+	pass
+
+def accept_friend(request):
+	pass
+
+def get_friend(request):
+	pass
+
+def update_friend(request):
+	pass
+
+
 def list_contains_record(record_list, record):
 	if (record is None):
 		return False

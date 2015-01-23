@@ -69,3 +69,6 @@ def login(request):
 
 	data['status']=503
 	return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+
+def search_people(request):
+	pass
