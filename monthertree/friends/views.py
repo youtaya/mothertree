@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.encoding import smart_unicode
-from models import Friend
+from friends.models import Friend
+from users.models import UserInfo
+from utils.packed_json import toJSON
 import json
 import time as _time
 from datetime import datetime
@@ -9,6 +11,9 @@ from django.contrib.auth.models import User
 import logging
 
 logger = logging.getLogger(__name__)
+
+import jpush as jpush
+from monthertree.conf import app_key, master_secret
 
 def recommend(request):
 	recommend_friends = []
@@ -23,16 +28,199 @@ def recommend(request):
 	return HttpResponse(toJSON(recommend_friends))
 
 def add_friend(request):
-	pass
+	data = {}
 
-def accept_friend(request):
-	pass
+	if request.method == 'POST':
+		logger.debug(str(request.POST))
+		user_name = request.POST.get('username')
+		logger.debug("src user name : "+user_name)
+		try:
+			src_user = User.objects.get(username = user_name)
+			src_user_info = UserInfo.object.get(user = src_user)
+		except ObjectDoesNotExist:
+			data['status']=34
+			data['error']='user do not exist'
+			return HttpResponse(toJSON(data))
+
+		target_user=request.POST.get('target_user')
+		# comment: for identify who that add
+		# comment = request.POST.get('comment')
+
+		try:
+			add_user = User.objects.get(username=target_user)
+			add_user_info = UserInfo.objects.get(user=check_user)
+
+			# TODO: fix verify status
+
+			try:
+				check_friend = Friend.objects.get(handle=src_user, username=target_user)
+
+				logger.debug("friend already add, skip it")
+
+			except ObjectDoesNotExist:
+				wait_friend = Friend.objects.create(handle = src_user, username=target_user)
+				wait_friend.verify_status = 2
+				wait_friend.save()
+
+				push_target = user_info.imsi
+
+				_jpush = jpush.JPush(app_key, master_secret)
+				push = _jpush.create_push()
+				push.audience = jpush.audience(
+					jpush.tag(push_target)
+				)
+				push.message = jpush.message(msg_content=201, extras=str(src_user))
+				push.platform = jpush.all_
+				push.send()
+
+			data['status']=0
+			data['server_friend_version'] = current_version
+			return HttpResponse(toJSON(data))
+		except ObjectDoesNotExist:
+			data['status']=28
+			data['error']='user have not register'
+			return HttpResponse(toJSON(data))
 
 def get_friend(request):
-	pass
+	data = {}
+
+	if request.method == 'POST':
+		logger.debug(str(request.POST))
+
+		client = request.POST.get('client')
+		client_imsi = request.POST.get('imsi')
+		mobile_friend_version = request.POST.get('mobile_friend_version')
+
+		client_friends = []
+		try:
+			#client_user = User.objects.get(username=client)
+			client_info = UserInfo.objects.get(imsi=client_imsi)
+			client_user = client_info.user
+			current_version = client_info.version_count
+			if(current_version-int(mobile_friend_version) == 0):
+				logger.debug("something goes wrong!!")
+
+			if(current_version-int(mobile_friend_version) < 2):
+				data["update_type"]=2
+				client_friends = Friend.objects.filter(user=client_user).filter(version_id__gt=mobile_friend_version)
+			else:
+				data['update_type']=1
+				client_friends = Friend.objects.filter(user=client_user)
+
+			record_list = []
+			if client_friends:
+				for friend in client_friends:
+					record = {}
+					record['group'] = smart_unicode(friend.group)
+					record['nickname'] = smart_unicode(friend.nickname)
+					#TODO: fix it
+					record['avatar_url'] = ""
+					record['mobile'] = smart_unicode(friend.phone_mobile)
+					record['verifystatus'] = friend.verify_status
+
+					logger.debug("record :"+str(record))
+					record_list.append(record)
+				data['server_friend_version']=current_version
+			else:
+				data['server_friend_version'] = -1
+
+			data['status']=0
+			data['friends']=record_list
+			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+		except ObjectDoesNotExist:
+			data['status']=28
+			data['error']='user have not register'
+			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+
+def accept_friend(request):
+	data = {}
+
+	if request.method == 'POST':
+		logger.debug(str(request.POST))
+
+		client = request.POST.get('client')
+		nok = request.POST.get('nok')
+		src_imsi = request.POST.get('imsi')
+		try:
+			src_user_info = UserInfo.objects.get(imsi = src_imsi)
+			src_user = src_user_info.user.username
+		except ObjectDoesNotExist:
+			data['status']=34
+			data['error']='sender user do not exist'
+			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+
+		target_user=request.POST.get('target_user')
+
+		try:
+			target = User.objects.get(username=target_user)
+			user_info = UserInfo.objects.get(user=target)
+			push_target = user_info.imsi
+
+			friend = Friend.objects.get(user=target,phone_mobile=src_user)
+			friend.avater = src_user_info.avatar
+			# get version count of target user
+			version_number = user_info.version_count + 1
+			friend.version_id = version_number
+			friend.group = 'friend'
+			friend.verify_status = 1
+			friend.save()
+
+			user_info.version_count = version_number
+			user_info.save()
+
+			_jpush = jpush.JPush(app_key, master_secret)
+			push = _jpush.create_push()
+			push.audience = jpush.audience(
+				jpush.tag(push_target)
+			)
+			push.message = jpush.message(msg_content=202, extras=str(src_user))
+			push.platform = jpush.all_
+			push.send()
+			data['status']=0
+			data['server_friend_version']=version_number
+			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+		except ObjectDoesNotExist:
+			data['status']=28
+			data['error']='user have not register'
+			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
 
 def update_friend(request):
-	pass
+	data = {}
+
+	if request.method == 'POST':
+		logger.debug(str(request.POST))
+
+		client = request.POST.get('client')
+		nick_name = request.POST.get('nick_name')
+		avatar_url = request.POST.get('avatar_url')
+		mobile = request.POST.get('mobile')
+
+		try:
+			client_user = User.objects.get(username = client)
+			client_user_info = UserInfo.objects.get(user=client_user)
+			logger.debug("friend nickname is "+nick_name)
+			my_friend = Friend.objects.get(user=client_user,phone_mobile=mobile)
+
+			# set breakpoint to trace
+			#import pdb; pdb.set_trace()
+			# TODO: fix it
+			#my_friend.avatar.url = avatar_url
+			my_friend.nickname = nick_name
+			current_version = client_user_info.version_count + 1
+			my_friend.version_id = current_version
+			my_friend.save()
+
+			client_user_info.version_count = current_version
+			client_user_info.save()
+
+			data['status']=0
+			data['server_friend_version']=current_version
+			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+		except ObjectDoesNotExist:
+			data['status']=28
+			data['error']='user have not register'
+			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+
 
 
 def list_contains_record(record_list, record):
@@ -203,9 +391,6 @@ def sync(request):
 	# update latest friends
 	return HttpResponse(toJSON(updated_friends))
 
-def toJSON(object):
-	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return json.dumps(object, ensure_ascii=False)
 
 class UpdatedRecordData(object):
 	"""Holds data for user's records.
