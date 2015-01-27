@@ -4,6 +4,7 @@ from django.utils.encoding import smart_unicode
 from friends.models import Friend
 from users.models import UserInfo
 from utils.packed_json import toJSON
+from utils.packed_jpush import jpush_send_message
 import json
 import time as _time
 from datetime import datetime
@@ -12,8 +13,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-import jpush as jpush
-from monthertree.conf import app_key, master_secret
+from utils.packed_jpush import jpush_send_message
 
 def recommend(request):
 	recommend_friends = []
@@ -62,19 +62,9 @@ def add_friend(request):
 				wait_friend.verify_status = 2
 				wait_friend.save()
 
-				push_target = user_info.imsi
-
-				_jpush = jpush.JPush(app_key, master_secret)
-				push = _jpush.create_push()
-				push.audience = jpush.audience(
-					jpush.tag(push_target)
-				)
-				push.message = jpush.message(msg_content=201, extras=str(src_user))
-				push.platform = jpush.all_
-				push.send()
+				jpush_send_message(user_name, target_user, 201)
 
 			data['status']=0
-			data['server_friend_version'] = current_version
 			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			data['status']=28
@@ -87,8 +77,7 @@ def get_friend(request):
 	if request.method == 'POST':
 		logger.debug(str(request.POST))
 
-		client = request.POST.get('client')
-		client_imsi = request.POST.get('imsi')
+		user_name = request.POST.get('username')
 		mobile_friend_version = request.POST.get('mobile_friend_version')
 
 		client_friends = []
@@ -126,11 +115,11 @@ def get_friend(request):
 
 			data['status']=0
 			data['friends']=record_list
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			data['status']=28
 			data['error']='user have not register'
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 
 def accept_friend(request):
 	data = {}
@@ -138,16 +127,15 @@ def accept_friend(request):
 	if request.method == 'POST':
 		logger.debug(str(request.POST))
 
-		client = request.POST.get('client')
+		user_name = request.POST.get('username')
 		nok = request.POST.get('nok')
-		src_imsi = request.POST.get('imsi')
 		try:
 			src_user_info = UserInfo.objects.get(imsi = src_imsi)
 			src_user = src_user_info.user.username
 		except ObjectDoesNotExist:
 			data['status']=34
 			data['error']='sender user do not exist'
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 
 		target_user=request.POST.get('target_user')
 
@@ -168,21 +156,15 @@ def accept_friend(request):
 			user_info.version_count = version_number
 			user_info.save()
 
-			_jpush = jpush.JPush(app_key, master_secret)
-			push = _jpush.create_push()
-			push.audience = jpush.audience(
-				jpush.tag(push_target)
-			)
-			push.message = jpush.message(msg_content=202, extras=str(src_user))
-			push.platform = jpush.all_
-			push.send()
+			jpush_send_message(user_name, target_user, 202)
+
 			data['status']=0
 			data['server_friend_version']=version_number
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			data['status']=28
 			data['error']='user have not register'
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 
 def update_friend(request):
 	data = {}
@@ -215,11 +197,11 @@ def update_friend(request):
 
 			data['status']=0
 			data['server_friend_version']=current_version
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			data['status']=28
 			data['error']='user have not register'
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 
 
 
