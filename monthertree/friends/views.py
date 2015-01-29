@@ -71,56 +71,6 @@ def add_friend(request):
 			data['error']='user have not register'
 			return HttpResponse(toJSON(data))
 
-def get_friend(request):
-	data = {}
-
-	if request.method == 'POST':
-		logger.debug(str(request.POST))
-
-		user_name = request.POST.get('username')
-		mobile_friend_version = request.POST.get('mobile_friend_version')
-
-		client_friends = []
-		try:
-			#client_user = User.objects.get(username=client)
-			client_info = UserInfo.objects.get(imsi=client_imsi)
-			client_user = client_info.user
-			current_version = client_info.version_count
-			if(current_version-int(mobile_friend_version) == 0):
-				logger.debug("something goes wrong!!")
-
-			if(current_version-int(mobile_friend_version) < 2):
-				data["update_type"]=2
-				client_friends = Friend.objects.filter(user=client_user).filter(version_id__gt=mobile_friend_version)
-			else:
-				data['update_type']=1
-				client_friends = Friend.objects.filter(user=client_user)
-
-			record_list = []
-			if client_friends:
-				for friend in client_friends:
-					record = {}
-					record['group'] = smart_unicode(friend.group)
-					record['nickname'] = smart_unicode(friend.nickname)
-					#TODO: fix it
-					record['avatar_url'] = ""
-					record['mobile'] = smart_unicode(friend.phone_mobile)
-					record['verifystatus'] = friend.verify_status
-
-					logger.debug("record :"+str(record))
-					record_list.append(record)
-				data['server_friend_version']=current_version
-			else:
-				data['server_friend_version'] = -1
-
-			data['status']=0
-			data['friends']=record_list
-			return HttpResponse(toJSON(data))
-		except ObjectDoesNotExist:
-			data['status']=28
-			data['error']='user have not register'
-			return HttpResponse(toJSON(data))
-
 def accept_friend(request):
 	data = {}
 
@@ -130,8 +80,8 @@ def accept_friend(request):
 		user_name = request.POST.get('username')
 		nok = request.POST.get('nok')
 		try:
-			src_user_info = UserInfo.objects.get(imsi = src_imsi)
-			src_user = src_user_info.user.username
+			src_user = User.objects.get(username = user_name)
+
 		except ObjectDoesNotExist:
 			data['status']=34
 			data['error']='sender user do not exist'
@@ -141,25 +91,15 @@ def accept_friend(request):
 
 		try:
 			target = User.objects.get(username=target_user)
-			user_info = UserInfo.objects.get(user=target)
-			push_target = user_info.imsi
 
-			friend = Friend.objects.get(user=target,phone_mobile=src_user)
-			friend.avater = src_user_info.avatar
-			# get version count of target user
-			version_number = user_info.version_count + 1
-			friend.version_id = version_number
-			friend.group = 'friend'
+			friend = Friend.objects.get(handle=target,username=user_name)
+			# change friend verify status
 			friend.verify_status = 1
 			friend.save()
-
-			user_info.version_count = version_number
-			user_info.save()
 
 			jpush_send_message(user_name, target_user, 202)
 
 			data['status']=0
-			data['server_friend_version']=version_number
 			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			data['status']=28
@@ -172,31 +112,23 @@ def update_friend(request):
 	if request.method == 'POST':
 		logger.debug(str(request.POST))
 
-		client = request.POST.get('client')
-		nick_name = request.POST.get('nick_name')
-		avatar_url = request.POST.get('avatar_url')
-		mobile = request.POST.get('mobile')
+		user_name = request.POST.get('username')
+		descrip = request.POST.get('description')
+		target_user=request.POST.get('target_user')
 
 		try:
-			client_user = User.objects.get(username = client)
-			client_user_info = UserInfo.objects.get(user=client_user)
-			logger.debug("friend nickname is "+nick_name)
-			my_friend = Friend.objects.get(user=client_user,phone_mobile=mobile)
+			src_user = User.objects.get(username = user_name)
+			src_user_info = UserInfo.objects.get(user=src_user)
+			logger.debug("friend description is "+descrip)
+			my_friend = Friend.objects.get(user=client_user,username=target_user)
 
 			# set breakpoint to trace
 			#import pdb; pdb.set_trace()
-			# TODO: fix it
-			#my_friend.avatar.url = avatar_url
-			my_friend.nickname = nick_name
-			current_version = client_user_info.version_count + 1
-			my_friend.version_id = current_version
+
+			my_friend.description = descrip
 			my_friend.save()
 
-			client_user_info.version_count = current_version
-			client_user_info.save()
-
 			data['status']=0
-			data['server_friend_version']=current_version
 			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			data['status']=28

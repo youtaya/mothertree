@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 import json
+from utils.packed_json import toJSON
 import time
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
@@ -27,27 +28,27 @@ def signup(request):
 		except KeyError:
 			data['status']=14
 			data['error']='missing items'
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 
 		if password!=confirmpass:
 			data['status']=10
 			data['error']='password not correct'
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 
 		logger.debug("[Register]:"+str(user_name)+" / "+str(password))
 		try:
 			check_user = User.objects.get(username=user_name)
 			data['status']=16
 			data['error']='username already used'
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			user=User(username=user_name,password=password,is_staff=False,is_active=True,is_superuser=False)
 			user.save()
 			data['status']=0
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 
 	data['status']=404
-	return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+	return HttpResponse(toJSON(data))
 
 
 def login(request):
@@ -55,7 +56,7 @@ def login(request):
 
 	if request.method == 'POST':
 		logger.debug(str(request.POST))
-		user_name = request.POST.get('username' )
+		user_name = request.POST.get('username')
 		password = request.POST.get('password')
 		# password=make_password(password)
 		logger.debug("[Login]:"+str(user_name)+" / "+str(password))
@@ -65,10 +66,43 @@ def login(request):
 		if user:
 			logger.debug("user is exist!!")
 			data['status']=0
-			return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+			return HttpResponse(toJSON(data))
 
 	data['status']=503
-	return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+	return HttpResponse(toJSON(data))
 
 def search_people(request):
-	pass
+	data = {}
+
+	if request.method == 'POST':
+		logger.debug(str(request.POST))
+
+		user_name = request.POST.get('username')
+		search_friend = request.POST.get('search_str')
+
+		try:
+			client_user = User.objects.get(username = user_name)
+			result = User.objects.filter(username=search_friend)
+
+			record_list = []
+			for friend in result:
+				get_friend = UserInfo.objects.get(user=friend)
+				record = {}
+				record['nickname'] = smart_unicode(get_friend.nickname)
+				# TODO: fix it
+				record['avatar_url'] = ""
+				record['mobile'] = smart_unicode(friend.username)
+
+				record_list.append(record)
+
+			data['status'] = 0
+			data['friends'] = record_list
+			return HttpResponse(toJSON(data))
+		except ObjectDoesNotExist:
+			data['status']=0
+			data['friends']= []
+			return HttpResponse(toJSON(data))
+
+		data['status']=55
+		data['error']='undefine error'
+		return HttpResponse(toJSON(data))
