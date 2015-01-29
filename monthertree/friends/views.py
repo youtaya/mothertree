@@ -50,8 +50,6 @@ def add_friend(request):
 			add_user = User.objects.get(username=target_user)
 			add_user_info = UserInfo.objects.get(user=check_user)
 
-			# TODO: fix verify status
-
 			try:
 				check_friend = Friend.objects.get(handle=src_user, username=target_user)
 
