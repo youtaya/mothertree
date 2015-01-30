@@ -19,6 +19,7 @@ class recommendTests(TestCase):
 		json_list = json.loads(response.content)
 		for friend in json_list:
 			self.assertEqual(friend['username'], 0)
+
 	def test_add_friend(self):
 		json_data = {
 			'mobile': '12345993',
@@ -91,7 +92,7 @@ class recommendTests(TestCase):
 
 		self.assertEqual(response.content, "ok")
 
-	def test_sync_with_user(self):
+	def test_sync_friend_with_user(self):
 		json_data = [
 			{
 				"h": "temp",

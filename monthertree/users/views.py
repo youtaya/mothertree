@@ -104,5 +104,4 @@ def search_people(request):
 			return HttpResponse(toJSON(data))
 
 		data['status']=55
-		data['error']='undefine error'
 		return HttpResponse(toJSON(data))

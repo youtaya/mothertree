@@ -39,7 +39,6 @@ def add_friend(request):
 			src_user_info = UserInfo.object.get(user = src_user)
 		except ObjectDoesNotExist:
 			data['status']=34
-			data['error']='user do not exist'
 			return HttpResponse(toJSON(data))
 
 		target_user=request.POST.get('target_user')
@@ -66,7 +65,6 @@ def add_friend(request):
 			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			data['status']=28
-			data['error']='user have not register'
 			return HttpResponse(toJSON(data))
 
 def accept_friend(request):
@@ -76,24 +74,27 @@ def accept_friend(request):
 		logger.debug(str(request.POST))
 
 		user_name = request.POST.get('username')
+		# 1: agree, 0: disagree
 		nok = request.POST.get('nok')
 		try:
 			src_user = User.objects.get(username = user_name)
 
 		except ObjectDoesNotExist:
 			data['status']=34
-			data['error']='sender user do not exist'
 			return HttpResponse(toJSON(data))
 
 		target_user=request.POST.get('target_user')
 
 		try:
 			target = User.objects.get(username=target_user)
-
-			friend = Friend.objects.get(handle=target,username=user_name)
-			# change friend verify status
-			friend.verify_status = 1
-			friend.save()
+			if(nok is 1):
+				friend = Friend.objects.get(handle=target,username=user_name)
+				# change friend verify status
+				friend.verify_status = 1
+				friend.save()
+			else:
+				friend = Friend.objects.get(handle=target,username=user_name)
+				friend.delete()
 
 			jpush_send_message(user_name, target_user, 202)
 
@@ -101,7 +102,6 @@ def accept_friend(request):
 			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			data['status']=28
-			data['error']='user have not register'
 			return HttpResponse(toJSON(data))
 
 def update_friend(request):
@@ -111,7 +111,9 @@ def update_friend(request):
 		logger.debug(str(request.POST))
 
 		user_name = request.POST.get('username')
+		name_comment = request.POST.get('name_comment')
 		descrip = request.POST.get('description')
+
 		target_user=request.POST.get('target_user')
 
 		try:
@@ -122,7 +124,7 @@ def update_friend(request):
 
 			# set breakpoint to trace
 			#import pdb; pdb.set_trace()
-
+			my_friend.name_comment = name_comment
 			my_friend.description = descrip
 			my_friend.save()
 
@@ -130,7 +132,6 @@ def update_friend(request):
 			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
 			data['status']=28
-			data['error']='user have not register'
 			return HttpResponse(toJSON(data))
 
 
@@ -280,7 +281,7 @@ def get_updated_friends(request_url, username, client_state, updated_friends):
 	logger.debug('Server-side updates: '+str(update_count))
 	logger.debug('Server-side deletes: '+str(delete_count))
 
-def sync(request):
+def sync_friend(request):
 
 	username = request.POST.get('username')
 	# upload client dirty friends

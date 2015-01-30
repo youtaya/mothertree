@@ -10,5 +10,5 @@ urlpatterns = patterns('',
 	url(r'^add_friend/$', views.add_friend, name="add_friend"),
 	url(r'^accept_friend/$', views.accept_friend, name="accept_friend"),
 	url(r'^update_friend/$', views.update_friend, name="update_friend"),
-	url(r'^sync/$', views.sync, name="sync"),
+	url(r'^sync_friend/$', views.sync_friend, name="sync_friend"),
 )
