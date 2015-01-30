@@ -321,7 +321,7 @@ class UpdatedRecordData(object):
 	}
 
 	def __init__(self, record_list, src_user, username, client_id, host_url, high_water_mark):
-		obj = Friend.objects.get(handler = src_user, username=username)
+		obj = Friend.objects.get(handle = src_user, username=username)
 
 		record = {}
 		for obj_name, json_name in self.__FIELD_MAP.items():

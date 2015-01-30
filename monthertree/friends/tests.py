@@ -59,9 +59,10 @@ class friendsTests(TestCase):
 
 
 	def test_sync_friend_with_user(self):
+		self.SetUp()
 		json_data = [
 			{
-				"h": "temp",
+				"h": "12345993",
 				"u": "james",
 				"p": "123456789",
 				"cid": 5,
@@ -69,7 +70,7 @@ class friendsTests(TestCase):
 				"d": 'false',
 			},
 			{
-				"h": "temp",
+				"h": "12345993",
 				"u": "amrk",
 				"p": "0569786321",
 				"cid": 6,
@@ -78,7 +79,7 @@ class friendsTests(TestCase):
 			},
 		]
 		python_dict = {
-			"username": "temp",
+			"username": '12345993',
 			"friends": json.dumps(json_data, ensure_ascii=False),
 		}
 		response = self.client.post(reverse('friends:sync_friend')
