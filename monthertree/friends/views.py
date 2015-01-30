@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.encoding import smart_unicode
+from django.core.exceptions import ObjectDoesNotExist
 from friends.models import Friend
 from users.models import UserInfo
 from utils.packed_json import toJSON
@@ -120,7 +121,7 @@ def update_friend(request):
 			src_user = User.objects.get(username = user_name)
 			src_user_info = UserInfo.objects.get(user=src_user)
 			logger.debug("friend description is "+descrip)
-			my_friend = Friend.objects.get(user=client_user,username=target_user)
+			my_friend = Friend.objects.get(user=src_user,username=target_user)
 
 			# set breakpoint to trace
 			#import pdb; pdb.set_trace()
@@ -151,7 +152,7 @@ def safe_attr(obj, attr_name):
 		return obj[attr_name]
 	return None
 
-def process_client_changes(request_url, username, friends_buffer, updated_friends):
+def process_client_changes(request_url, src_user, friends_buffer, updated_friends):
 	logger.debug('* Processing client changes')
 	base_url = request_url
 
@@ -176,7 +177,7 @@ def process_client_changes(request_url, username, friends_buffer, updated_friend
 			logger.debug('creating new friend record')
 			new_record = True
 			# todo : need pass user name to handle
-			record = Friend(username=username)
+			record = Friend(handle = src_user)
 
 		# if the 'change' for this record is that they were deleted
 		# on the client-side, all we want to do is set the deleted
@@ -187,9 +188,9 @@ def process_client_changes(request_url, username, friends_buffer, updated_friend
 			logger.debug('Deleted record: '+record.handle)
 			continue
 
-		record.handle = safe_attr(jrecord, 'h')
+		record.handle = src_user
 		record.username = safe_attr(jrecord, 'u')
-		record.phone_mobile = safe_attr(jrecord, 'p')
+		record.mobile_phone = safe_attr(jrecord, 'p')
 		record.avatar = safe_attr(jrecord, 'a')
 		record.description = safe_attr(jrecord, 'd')
 
@@ -217,14 +218,13 @@ def process_client_changes(request_url, username, friends_buffer, updated_friend
 		# to the client (so the client gets the serverId for the
 		# added record)
 		if (new_record):
-			UpdatedRecordData(updated_friends, record.username, client_id,
+			UpdatedRecordData(updated_friends, src_user, record.username, client_id,
 				base_url, high_water)
 
 	logger.debug('Client-side adds: '+str(new_record_count))
 
 
-
-def get_updated_friends(request_url, username, client_state, updated_friends):
+def get_updated_friends(request_url, src_user, client_state, updated_friends):
 	logger.debug('* Processing server changes')
 	timestamp = None
 
@@ -243,7 +243,7 @@ def get_updated_friends(request_url, username, client_state, updated_friends):
 	update_count = 0
 	delete_count = 0
 
-	records = Friend.objects.filter(username=username)
+	records = Friend.objects.filter(handle=src_user)
 	if records:
 		# find the high-water mark for the most recently updated record.
 		# we'll return this as the syncstate (x) value for all the friends
@@ -273,17 +273,17 @@ def get_updated_friends(request_url, username, client_state, updated_friends):
 			if timestamp is None or record.updated > timestamp:
 				if record.deleted == True:
 					delete_count = delete_count + 1
-					DeletedRecordData(updated_friends, username, high_water_mark)
+					DeletedRecordData(updated_friends, src_user, username, high_water_mark)
 				else:
 					update_count = update_count + 1
-					UpdatedRecordData(updated_friends, username, None, base_url, high_water_mark)
+					UpdatedRecordData(updated_friends, src_user, username, None, base_url, high_water_mark)
 
 	logger.debug('Server-side updates: '+str(update_count))
 	logger.debug('Server-side deletes: '+str(delete_count))
 
 def sync_friend(request):
 
-	username = request.POST.get('username')
+	user_name = request.POST.get('username')
 	# upload client dirty friends
 	updated_friends = []
 	if request.method == 'POST':
@@ -293,12 +293,14 @@ def sync_friend(request):
 	client_buffer = request.POST.get('friends')
 	request_url = request.POST.get('host_url')
 
+	src_user = User.objects.get(username = user_name)
+
 	if((client_buffer != None) and (client_buffer != '')):
-		process_client_changes(request_url, username, client_buffer, updated_friends)
+		process_client_changes(request_url, src_user, client_buffer, updated_friends)
 
 	# add any friends on the server-side
 	client_state = request.POST.get('syncstate')
-	get_updated_friends(request_url, username, client_state, updated_friends)
+	get_updated_friends(request_url, src_user, client_state, updated_friends)
 
 	logger.debug("update friends are : "+toJSON(updated_friends))
 	# update latest friends
@@ -311,16 +313,15 @@ class UpdatedRecordData(object):
 	This class knows how to serialize itself to JSON.
 	"""
 	__FIELD_MAP = {
-		'handle': 'h',
 		'username': 'u',
-		'phone_mobile': 'p',
+		'mobile_phone': 'p',
 		'avatar': 'a',
 		'description': 'd',
 		'client_id': 'cid'
 	}
 
-	def __init__(self, record_list, username, client_id, host_url, high_water_mark):
-		obj = Friend.objects.get(username=username)
+	def __init__(self, record_list, src_user, username, client_id, host_url, high_water_mark):
+		obj = Friend.objects.get(handler = src_user, username=username)
 
 		record = {}
 		for obj_name, json_name in self.__FIELD_MAP.items():
@@ -339,8 +340,8 @@ class UpdatedRecordData(object):
 		record_list.append(record)
 
 class DeletedRecordData(object):
-	def __init__(self, record_list, username, high_water_mark):
-		obj = Friend.objects.get(username=username)
+	def __init__(self, record_list, src_user, username, high_water_mark):
+		obj = Friend.objects.get(handle = src_user, username=username)
 		record = {}
 		record['d'] = 'true'
 		record['sid'] = obj.id

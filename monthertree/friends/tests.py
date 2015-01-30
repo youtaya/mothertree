@@ -2,12 +2,14 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from models import Friend
+from users.models import UserInfo
 from django.contrib.auth.models import User
 from django.utils import timezone
 import json
 import logging
 
-class recommendTests(TestCase):
+class friendsTests(TestCase):
+
 	def SetUp(self):
 		user_1 = User.objects.create(username='12345993')
 		user_info_1 = UserInfo.objects.create(user=user_1, nickname='test 01')
@@ -22,46 +24,22 @@ class recommendTests(TestCase):
 
 	def test_add_friend(self):
 		json_data = {
-			'mobile': '12345993',
-			"friend_mobile": '13636630387',
+			'username': '12345993',
+			"target_user": '13636630387',
 		}
 
-		response = self.client.post(reverse('friend:add_friend'), json_data)
-
-		self.assertEqual(response.content, "ok")
-
-	def test_get_friend_less(self):
-		self.prepare_data()
-
-		json_data = {
-			"mobile": '12345993',
-			"local_friend_version": 1,
-		}
-
-		response = self.client.post(reverse('friend:get_friend'), json_data)
-
-		self.assertEqual(response.content, "ok")
-
-	def test_get_friend_equality(self):
-		self.prepare_data()
-
-		json_data = {
-			"mobile": '12345993',
-			"local_friend_version": 2,
-		}
-
-		response = self.client.post(reverse('friend:get_friend'), json_data)
+		response = self.client.post(reverse('friends:add_friend'), json_data)
 
 		self.assertEqual(response.content, "ok")
 
 	def test_accept_friend(self):
 		json_data = {
-			"mobile": 12345993,
+			"username": 12345993,
 			"nok": 1,
-			"friend_mobile": 13636630387,
+			"target_user": 13636630387,
 		}
 
-		response = self.client.post(reverse('friend:accept_friend'), json_data)
+		response = self.client.post(reverse('friends:accept_friend'), json_data)
 
 		self.assertEqual(response.content, "ok")
 
@@ -69,28 +47,16 @@ class recommendTests(TestCase):
 		self.prepare_data()
 
 		json_data = {
-			"mobile": 12345993,
-			"friend_mobile": 13636630387,
-			"comment": 'penut',
-			"group": 'cat_pic',
+			"username": 12345993,
+			"target_user": 13636630387,
+			"name_comment": 'penut',
 			"description": 'cross finger',
 		}
 
-		response = self.client.post(reverse('friend:update_friend'), json_data)
+		response = self.client.post(reverse('friends:update_friend'), json_data)
 
 		self.assertEqual(response.content, "ok")
 
-	def test_search_friend(self):
-		self.prepare_data()
-
-		json_data = {
-			"mobile": 12345993,
-			"search_str": 13636630387,
-		}
-
-		response = self.client.post(reverse('friend:search_friend'), json_data)
-
-		self.assertEqual(response.content, "ok")
 
 	def test_sync_friend_with_user(self):
 		json_data = [
@@ -115,7 +81,7 @@ class recommendTests(TestCase):
 			"username": "temp",
 			"friends": json.dumps(json_data, ensure_ascii=False),
 		}
-		response = self.client.post(reverse('friends:sync')
+		response = self.client.post(reverse('friends:sync_friend')
 			,python_dict)
 			#content_type="application/json")
 		self.assertEqual(response.content, "ok")
@@ -123,7 +89,8 @@ class recommendTests(TestCase):
 		self.assertEqual(len(records), 1)
 
 	def prepare_data(self):
+
 		test1 = User.objects.get(username='12345993')
 		dog = UserInfo.objects.get(user=test1)
-		cat = Friend.objects.create(user=test1,phone='13636630387', nickname='cat',version_id=1)
-		cow = Friend.objects.create(user=test1, phone='13636630388', nickname='cow',version_id=2)
+		cat = Friend.objects.create(handle=test1,mobile_phone='13636630387', username='cat')
+		cow = Friend.objects.create(handle=test1,mobile_phone='13636630388', username='cow')
