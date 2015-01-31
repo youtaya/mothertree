@@ -25,7 +25,6 @@ def recommend(request):
 		logger.debug("friend is : %s" %friend.username)
 		recommend = {'friends': friend.username}
 		recommend_friends.append(recommend)
-	# scrapy today news from web
 	return HttpResponse(toJSON(recommend_friends))
 
 def add_friend(request):
@@ -48,7 +47,7 @@ def add_friend(request):
 
 		try:
 			add_user = User.objects.get(username=target_user)
-			add_user_info = UserInfo.objects.get(user=check_user)
+			add_user_info = UserInfo.objects.get(user=add_user)
 
 			try:
 				check_friend = Friend.objects.get(handle=src_user, username=target_user)

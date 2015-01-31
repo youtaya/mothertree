@@ -10,7 +10,7 @@ import logging
 
 class friendsTests(TestCase):
 
-	def SetUp(self):
+	def setUp(self):
 		user_1 = User.objects.create(username='12345993')
 		user_info_1 = UserInfo.objects.create(user=user_1, nickname='test 01')
 		user_2 = User.objects.create(username='13636630387')
@@ -20,7 +20,7 @@ class friendsTests(TestCase):
 		response = self.client.get(reverse('friends:recommend'))
 		json_list = json.loads(response.content)
 		for friend in json_list:
-			self.assertEqual(friend['username'], 0)
+			self.assertEqual(friend['friends'], 0)
 
 	def test_add_friend(self):
 		json_data = {
@@ -59,7 +59,6 @@ class friendsTests(TestCase):
 
 
 	def test_sync_friend_with_user(self):
-		self.SetUp()
 		json_data = [
 			{
 				"h": "12345993",
