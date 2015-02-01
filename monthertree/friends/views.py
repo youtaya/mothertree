@@ -36,7 +36,7 @@ def add_friend(request):
 		logger.debug("src user name : "+user_name)
 		try:
 			src_user = User.objects.get(username = user_name)
-			src_user_info = UserInfo.object.get(user = src_user)
+			src_user_info = UserInfo.objects.get(user = src_user)
 		except ObjectDoesNotExist:
 			data['status']=34
 			return HttpResponse(toJSON(data))
@@ -120,7 +120,7 @@ def update_friend(request):
 			src_user = User.objects.get(username = user_name)
 			src_user_info = UserInfo.objects.get(user=src_user)
 			logger.debug("friend description is "+descrip)
-			my_friend = Friend.objects.get(user=src_user,username=target_user)
+			my_friend = Friend.objects.get(handle=src_user,username=target_user)
 
 			# set breakpoint to trace
 			#import pdb; pdb.set_trace()

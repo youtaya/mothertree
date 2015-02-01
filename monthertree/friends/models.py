@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 class Friend(models.Model):
 	#handle = models.CharField(max_length=200)
-	handle = models.ForeignKey(User, unique=True)
+	handle = models.ForeignKey(User)
 	username = models.CharField(max_length=200)
 	mobile_phone = models.CharField(max_length=200)
 	avatar = models.ImageField(upload_to='avatar')
