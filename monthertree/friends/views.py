@@ -87,13 +87,13 @@ def accept_friend(request):
 
 		try:
 			target = User.objects.get(username=target_user)
+			friend = Friend.objects.get(handle=target,username=user_name)
 			if(nok is 1):
-				friend = Friend.objects.get(handle=target,username=user_name)
 				# change friend verify status
 				friend.verify_status = 1
 				friend.save()
 			else:
-				friend = Friend.objects.get(handle=target,username=user_name)
+				# disagree to add, so delete it
 				friend.delete()
 
 			jpush_send_message(user_name, target_user, 202)

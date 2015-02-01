@@ -33,10 +33,11 @@ class friendsTests(TestCase):
 		self.assertEqual(response.content, "ok")
 
 	def test_accept_friend(self):
+		self.prepare_data()
 		json_data = {
-			"username": 12345993,
+			"username": 13636630387,
 			"nok": 1,
-			"target_user": 13636630387,
+			"target_user": 12345993,
 		}
 
 		response = self.client.post(reverse('friends:accept_friend'), json_data)
@@ -92,5 +93,5 @@ class friendsTests(TestCase):
 
 		test1 = User.objects.get(username='12345993')
 		dog = UserInfo.objects.get(user=test1)
-		cat = Friend.objects.create(handle=test1,mobile_phone='13636630387', username='cat')
-		cow = Friend.objects.create(handle=test1,mobile_phone='13636630388', username='cow')
+		cat = Friend.objects.create(handle=test1,mobile_phone='02513636630387', username='13636630387')
+		cow = Friend.objects.create(handle=test1,mobile_phone='02513636630388', username='13636630388')
