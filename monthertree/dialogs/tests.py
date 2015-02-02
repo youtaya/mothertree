@@ -14,7 +14,8 @@ class shareTests(TestCase):
 	def test_share_with_user(self):
 		json_data = {
 			"handle": "temp",
-			"link": "temp",
+			"sender": "temp",
+			"link": "abc",
 			"direct": 1,
 			"content": "test for test",
 			"date": "2014-05-15",
