@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from utils.packed_json import toJSON
 import json
 import time as _time
 from datetime import datetime, date
+from friends.models import Friend
 from models import Time
 from django.contrib.auth.models import User
 from forms import UploadFileForm
@@ -233,8 +235,16 @@ def visit(request):
 	if(last_date == None):
 		last_date = '1970-1-1'
 	records = []
-	# get friend's records that after last date
-	get_visit_records(user_name, friend_name, last_date, records)
+	# check whether is friend or not
+	user = User.objects.get(username = user_name)
+	try:
+		check_friend = Friend.objects.get(handle=user, username=friend_name)
+
+		# get friend's records that after last date
+		get_visit_records(user_name, friend_name, last_date, records)
+	except ObjectDoesNotExist:
+		logger.debug("they are not friends")
+
 	logger.debug("visit records are : "+toJSON(records))
 	return HttpResponse(toJSON(records))
 

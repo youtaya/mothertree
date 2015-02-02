@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import timezone
 from datetime import timedelta
 import json
+from utils.packed_json import toJSON
 
 def today(request):
 	cTime = timezone.localtime(timezone.now())
@@ -27,7 +28,3 @@ def latest(request):
 	]
 	# scrapy latest news from web
 	return HttpResponse(toJSON(latest_news))
-
-def toJSON(object):
-	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return json.dumps(object, ensure_ascii=False)

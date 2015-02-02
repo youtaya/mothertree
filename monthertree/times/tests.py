@@ -5,9 +5,12 @@ from models import Time
 from django.utils import timezone
 import json
 import logging
+from django.contrib.auth.models import User
 
 class syncTests(TestCase):
 	def setUp(self):
+		user1 = User.objects.create(username='temp')
+		user2 = User.objects.create(username='abc')
 		record1 = Time(handle='temp',
 			title="test1",
 			content="what's thsis",
@@ -77,9 +80,8 @@ class syncTests(TestCase):
 
 	def test_visit_with_user(self):
 
-		#response = self.client.post(reverse('times:reset'))
-
 		python_dict = {
+			"username": "abc",
 			"friend": "temp",
 		}
 		response = self.client.post(reverse('times:visit')
