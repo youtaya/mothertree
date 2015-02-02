@@ -88,10 +88,10 @@ def search_people(request):
 			for friend in result:
 				get_friend = UserInfo.objects.get(user=friend)
 				record = {}
-				record['nickname'] = smart_unicode(get_friend.nickname)
+				record['nick_name'] = get_friend.nickname
 				# TODO: fix it
 				record['avatar_url'] = ""
-				record['mobile'] = smart_unicode(friend.username)
+				record['user_name'] = friend.username
 
 				record_list.append(record)
 
@@ -99,8 +99,7 @@ def search_people(request):
 			data['friends'] = record_list
 			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
-			data['status']=0
-			data['friends']= []
+			data['status']=36
 			return HttpResponse(toJSON(data))
 
 		data['status']=55
