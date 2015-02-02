@@ -7,6 +7,27 @@ import json
 import logging
 
 class syncTests(TestCase):
+	def setUp(self):
+		record1 = Time(handle='temp',
+			title="test1",
+			content="what's thsis",
+			create_date=timezone.now(),
+			create_time=timezone.now(),
+			content_type=1,
+			link="temp",
+			deleted=False)
+		record1.save()
+
+		record2 = Time(handle='temp',
+			title="test2",
+			content="time filping",
+			create_date=timezone.now(),
+			create_time=timezone.now(),
+			content_type=1,
+			link="temp",
+			deleted=False)
+		record2.save()
+
 	def test_reset_db(self):
 		response = self.client.post(reverse('times:reset'))
 		records = Time.objects.all()
@@ -56,7 +77,7 @@ class syncTests(TestCase):
 
 	def test_visit_with_user(self):
 
-		response = self.client.post(reverse('times:reset'))
+		#response = self.client.post(reverse('times:reset'))
 
 		python_dict = {
 			"friend": "temp",

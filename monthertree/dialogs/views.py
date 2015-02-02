@@ -70,7 +70,7 @@ def get_dialog(request):
 	get_id = request.POST.get('id')
 	logger.debug("username: "+username+"get id: "+ get_id)
 
-	dialog_item = Dialog.objects.get(sender=username, id=int(get_id))
+	dialog_item = Dialog.objects.get(handle=username, id=int(get_id))
 	data = pack_dialog_json(dialog_item)
 	return HttpResponse(toJSON(data),content_type='application/json')
 
