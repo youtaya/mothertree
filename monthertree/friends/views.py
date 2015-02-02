@@ -14,8 +14,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from utils.packed_jpush import jpush_send_message
-
 def recommend(request):
 	recommend_friends = []
 	friends = User.objects.all()
@@ -59,7 +57,9 @@ def add_friend(request):
 				wait_friend.verify_status = 2
 				wait_friend.save()
 
-				jpush_send_message(user_name, target_user, 201)
+				push_data = {}
+				push_data['user_name'] = user_name
+				jpush_send_message(toJSON(push_data), target_user, 201)
 
 			data['status']=0
 			return HttpResponse(toJSON(data))
@@ -96,7 +96,9 @@ def accept_friend(request):
 				# disagree to add, so delete it
 				friend.delete()
 
-			jpush_send_message(user_name, target_user, 202)
+			push_data = {}
+			push_data['user_name'] = user_name
+			jpush_send_message(toJSON(push_data), target_user, 202)
 
 			data['status']=0
 			return HttpResponse(toJSON(data))

@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from utils.packed_json import toJSON
 import json
 import time as _time
 from datetime import datetime, date
@@ -325,9 +326,6 @@ def photoView2(request):
     image_data2 = open('%s/%s' % (settings.MEDIA_ROOT , "20140810231230"), "rb").read()
     return HttpResponse(image_data2, content_type="image/png")
 
-def toJSON(object):
-	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return json.dumps(object, ensure_ascii=False)
 
 class PackedRecordData(object):
 	"""Holds data for user's records.

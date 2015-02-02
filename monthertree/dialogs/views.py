@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from utils.packed_json import toJSON
 import json
 import time as _time
 from datetime import datetime
@@ -71,7 +72,7 @@ def get_dialog(request):
 
 	dialog_item = Dialog.objects.get(sender=username, id=int(get_id))
 	data = pack_dialog_json(dialog_item)
-	return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+	return HttpResponse(toJSON(data),content_type='application/json')
 
 def process_client_anonymous_share(records_buffer, username):
 
@@ -106,7 +107,9 @@ def process_client_anonymous_share(records_buffer, username):
 
     record.save()
     logger.debug('Saved record: '+record.handle)
-    jpush_send_message(username, target_handle, record.id)
+    push_data = {}
+    push_data['username'] = username
+    jpush_send_message(toJSON(push_data), target_handle, record.id)
 
 def process_client_share(records_buffer, username, target_handle):
 

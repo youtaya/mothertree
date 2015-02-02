@@ -8,7 +8,7 @@ import logging
 
 class shareTests(TestCase):
 
-	def set_up(self):
+	def setUp(self):
 		pass
 
 	def test_share_with_user(self):
