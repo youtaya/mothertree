@@ -12,17 +12,17 @@ def today(request):
 	today_news = {
 		"news": [
 			{
-			"one":"Failure is not  fatal, but failure to change might be.",
+			"content":"Failure is not  fatal, but failure to change might be.",
 			"create_time": str(cTime.date()),
 			"expired_time": str(nextTime.date()),
 			},
 			{
-			"two":"The great use of life is to spend it for something that overlasts it."
+			"content":"The great use of life is to spend it for something that overlasts it."
 			"create_time": str(cTime.date()),
 			"expired_time": str(nextTime.date()),
 			},
 			{
-			"three":"All you want to say will definitely be received by one in the world.\
+			"content":"All you want to say will definitely be received by one in the world.\
 			Would cease your desperation a little."
 			"create_time": str(cTime.date()),
 			"expired_time": str(nextTime.date())
