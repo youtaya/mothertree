@@ -17,13 +17,13 @@ def today(request):
 			"expired_time": str(nextTime.date()),
 			},
 			{
-			"content":"The great use of life is to spend it for something that overlasts it."
+			"content":"The great use of life is to spend it for something that overlasts it.",
 			"create_time": str(cTime.date()),
 			"expired_time": str(nextTime.date()),
 			},
 			{
 			"content":"All you want to say will definitely be received by one in the world.\
-			Would cease your desperation a little."
+			Would cease your desperation a little.",
 			"create_time": str(cTime.date()),
 			"expired_time": str(nextTime.date())
 			}
