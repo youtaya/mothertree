@@ -109,7 +109,8 @@ def process_client_anonymous_share(records_buffer, username):
     logger.debug('Saved record: '+record.handle)
     push_data = {}
     push_data['username'] = username
-    jpush_send_message(toJSON(push_data), target_handle, record.id)
+    push_date['id'] = record.id
+    jpush_send_message(toJSON(push_data), target_handle, 1001)
 
 def process_client_share(records_buffer, username, target_handle):
 
@@ -131,7 +132,10 @@ def process_client_share(records_buffer, username, target_handle):
 
     record.save()
     logger.debug('Saved record: '+record.handle)
-    jpush_send_message(username, target_handle, record.id)
+    push_data = {}
+    push_data['username'] = username
+	push_date['id'] = record.id
+    jpush_send_message(push_data, target_handle, 1001)
 
 def share(request):
 

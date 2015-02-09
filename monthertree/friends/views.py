@@ -59,7 +59,7 @@ def add_friend(request):
 
 				push_data = {}
 				push_data['user_name'] = user_name
-				jpush_send_message(toJSON(push_data), target_user, 201)
+				jpush_send_message(toJSON(push_data), target_user, 1002)
 
 			data['status']=0
 			return HttpResponse(toJSON(data))
@@ -98,7 +98,7 @@ def accept_friend(request):
 
 			push_data = {}
 			push_data['user_name'] = user_name
-			jpush_send_message(toJSON(push_data), target_user, 202)
+			jpush_send_message(toJSON(push_data), target_user, 1002)
 
 			data['status']=0
 			return HttpResponse(toJSON(data))

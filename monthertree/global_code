@@ -1,3 +1,4 @@
+RESPONSE:
 0    success
 10   password not correct
 14   missing items
@@ -7,3 +8,7 @@
 36   user can not find in db
 55   undefined error
 503  server internal error
+
+PUSH CODE:
+1001 handle dialog
+1002 handle friend
