@@ -191,7 +191,10 @@ def process_client_changes(request_url, src_user, friends_buffer, updated_friend
 
 		record.handle = src_user
 		record.username = safe_attr(jrecord, 'u')
-		record.mobile_phone = safe_attr(jrecord, 'p')
+		if(safe_attr(jrecord,'p') == None):
+			record.mobile_phone = "123"
+		else:
+			record.mobile_phone = safe_attr(jrecord, 'p')
 		record.avatar = safe_attr(jrecord, 'a')
 		record.description = safe_attr(jrecord, 'd')
 
