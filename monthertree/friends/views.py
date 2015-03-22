@@ -290,6 +290,7 @@ def sync_friend(request):
 	user_name = request.POST.get('username')
 	# upload client dirty friends
 	updated_friends = []
+	result_friends = {}
 	if request.method == 'POST':
 		logger.debug("request POST: "+str(request.POST))
 	else:
@@ -306,9 +307,10 @@ def sync_friend(request):
 	client_state = request.POST.get('syncstate')
 	get_updated_friends(request_url, src_user, client_state, updated_friends)
 
-	logger.debug("update friends are : "+toJSON(updated_friends))
+	result_friends['friends'] = updated_friends
+	logger.debug("update friends are : "+toJSON(result_friends))
 	# update latest friends
-	return HttpResponse(toJSON(updated_friends))
+	return HttpResponse(toJSON(result_friends))
 
 
 class UpdatedRecordData(object):
