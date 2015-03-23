@@ -7,5 +7,8 @@ urlpatterns = patterns('',
 	# url(r'^(?P<pk>\d+)/results/$', views.ResultsView.as_view(), name='results'),
 
 	url(r'^recommend/$', views.recommend, name="recommend"),
-	url(r'^sync/$', views.sync, name="sync"),
+	url(r'^add_friend/$', views.add_friend, name="add_friend"),
+	url(r'^accept_friend/$', views.accept_friend, name="accept_friend"),
+	url(r'^update_friend/$', views.update_friend, name="update_friend"),
+	url(r'^sync_friend/$', views.sync_friend, name="sync_friend"),
 )

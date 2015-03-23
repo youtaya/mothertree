@@ -7,5 +7,5 @@ urlpatterns = patterns('',
 	# url(r'^(?P<pk>\d+)/results/$', views.ResultsView.as_view(), name='results'),
 
 	url(r'^today/$', views.today, name='today'),
-	url(r'^latest/$', views.latest, name="latest"),
+	url(r'^latest/$', views.latest, name='latest'),
 )

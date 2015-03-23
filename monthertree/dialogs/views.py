@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from utils.packed_json import toJSON
 import json
 import time as _time
 from datetime import datetime
@@ -16,8 +17,7 @@ from django.conf import settings
 from django.views import generic
 from random import randint
 
-import jpush as jpush
-from monthertree.conf import app_key, master_secret
+from utils.packed_jpush import jpush_send_message
 
 logger = logging.getLogger(__name__)
 
@@ -26,16 +26,6 @@ def safe_attr(obj, attr_name):
 		return obj[attr_name]
 	return None
 
-def jpush_send_message(push_src, push_target, id):
-	_jpush = jpush.JPush(app_key, master_secret)
-	push = _jpush.create_push()
-	push.audience = jpush.audience(
-		# push_target may user account or phone number
-		jpush.tag(push_target)
-	)
-	push.message = jpush.message(msg_content=id, extras=str(push_src))
-	push.platform = jpush.all_
-	push.send()
 
 def pack_dialog_json(item):
 	pack_data = {}
@@ -80,9 +70,9 @@ def get_dialog(request):
 	get_id = request.POST.get('id')
 	logger.debug("username: "+username+"get id: "+ get_id)
 
-	dialog_item = Dialog.objects.get(sender=username, id=int(get_id))
+	dialog_item = Dialog.objects.get(handle=username, id=int(get_id))
 	data = pack_dialog_json(dialog_item)
-	return HttpResponse(json.dumps(data,ensure_ascii=False),content_type='application/json')
+	return HttpResponse(toJSON(data),content_type='application/json')
 
 def process_client_anonymous_share(records_buffer, username):
 
@@ -117,7 +107,10 @@ def process_client_anonymous_share(records_buffer, username):
 
     record.save()
     logger.debug('Saved record: '+record.handle)
-    jpush_send_message(username, target_handle, record.id)
+    push_data = {}
+    push_data['username'] = username
+    push_date['id'] = record.id
+    jpush_send_message(toJSON(push_data), target_handle, 1001)
 
 def process_client_share(records_buffer, username, target_handle):
 
@@ -139,7 +132,10 @@ def process_client_share(records_buffer, username, target_handle):
 
     record.save()
     logger.debug('Saved record: '+record.handle)
-    jpush_send_message(username, target_handle, record.id)
+    push_data = {}
+    push_data['username'] = username
+    push_date['id'] = record.id
+    jpush_send_message(push_data, target_handle, 1001)
 
 def share(request):
 

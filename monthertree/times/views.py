@@ -1,9 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
+from utils.packed_json import toJSON
 import json
 import time as _time
 from datetime import datetime, date
+from friends.models import Friend
 from models import Time
 from django.contrib.auth.models import User
 from forms import UploadFileForm
@@ -76,7 +79,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		# if the 'change' for this record is that they were deleted
 		# on the client-side, all we want to do is set the deleted
 		# flag here, and we're done.
-		if(safe_attr(jrecord,'del') == True):
+		if(safe_attr(jrecord,'del') == 1):
 			record.deleted = True
 			record.save()
 			logger.debug('Deleted record: '+record.handle)
@@ -97,7 +100,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		record.audio = safe_attr(jrecord, 'ao')
 		if(None != safe_attr(jrecord, 'tag')):
 			record.tag = safe_attr(jrecord, 'tag')
-		record.deleted = (safe_attr(jrecord, 'del') == 'true')
+		record.deleted = (safe_attr(jrecord, 'del') == 1)
 		if(new_record):
 			# new record - add them to db ...
 			new_record_count = new_record_count + 1
@@ -194,6 +197,7 @@ def sync(request):
 	username = request.POST.get('username')
 	# upload client dirty records
 	updated_records = []
+	result_records = {}
 	if request.method == 'POST':
 		logger.debug("request POST: "+str(request.POST))
 	else:
@@ -210,10 +214,11 @@ def sync(request):
 	client_state = request.POST.get('syncstate')
 	get_updated_records(request_url, username, client_state, updated_records)
 
-	logger.debug("update records are : "+toJSON(updated_records))
+	result_records['records'] = updated_records
+	logger.debug("update records are : "+toJSON(result_records))
 	# update latest records
 	#HttpResponse.status(200)
-	return HttpResponse(toJSON(updated_records))
+	return HttpResponse(toJSON(result_records))
 
 def get_visit_records(user_name, friend_name, last_date, records):
 	filter_records = Time.objects.filter(
@@ -232,8 +237,16 @@ def visit(request):
 	if(last_date == None):
 		last_date = '1970-1-1'
 	records = []
-	# get friend's records that after last date
-	get_visit_records(user_name, friend_name, last_date, records)
+	# check whether is friend or not
+	user = User.objects.get(username = user_name)
+	try:
+		check_friend = Friend.objects.get(handle=user, username=friend_name)
+
+		# get friend's records that after last date
+		get_visit_records(user_name, friend_name, last_date, records)
+	except ObjectDoesNotExist:
+		logger.debug("they are not friends")
+
 	logger.debug("visit records are : "+toJSON(records))
 	return HttpResponse(toJSON(records))
 
@@ -256,26 +269,6 @@ def resetdb(request):
 	records = Time.objects.all()
 	for record in records:
 		record.delete()
-
-	record1 = Time(handle='temp',
-		title="test1",
-		content="what's thsis",
-		create_date=timezone.now(),
-		create_time=timezone.now(),
-		content_type=1,
-		link="temp",
-		deleted=False)
-	record1.save()
-
-	record2 = Time(handle='temp',
-		title="test2",
-		content="time filping",
-		create_date=timezone.now(),
-		create_time=timezone.now(),
-		content_type=1,
-		link="temp",
-		deleted=False)
-	record2.save()
 
 	return HttpResponse(200)
 
@@ -325,9 +318,6 @@ def photoView2(request):
     image_data2 = open('%s/%s' % (settings.MEDIA_ROOT , "20140810231230"), "rb").read()
     return HttpResponse(image_data2, content_type="image/png")
 
-def toJSON(object):
-	"""Dumps the data represented by the object to JSON for wire transfer."""
-	return json.dumps(object, ensure_ascii=False)
 
 class PackedRecordData(object):
 	"""Holds data for user's records.
@@ -405,7 +395,7 @@ class DeletedRecordData(object):
 		#allObjs = Time.objects.filter(handle=username)
 		obj = Time.objects.get(handle=username, create_time=mark_time)
 		record = {}
-		record['del'] = 'true'
+		record['del'] = 1
 		record['sid'] = obj.id
 		record['x'] = high_water_mark
 		record_list.append(record)

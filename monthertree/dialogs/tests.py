@@ -8,13 +8,30 @@ import logging
 
 class shareTests(TestCase):
 
-	def set_up(self):
-		pass
+	def setUp(self):
+		record1 = Dialog(handle='temp',
+			content="what's thsis",
+			create_date=timezone.now(),
+			create_time=timezone.now(),
+			content_type=1,
+			link="temp",
+			deleted=False)
+		record1.save()
+
+		record2 = Dialog(handle='temp',
+			content="time filping",
+			create_date=timezone.now(),
+			create_time=timezone.now(),
+			content_type=1,
+			link="temp",
+			deleted=False)
+		record2.save()
 
 	def test_share_with_user(self):
 		json_data = {
 			"handle": "temp",
-			"link": "temp",
+			"sender": "temp",
+			"link": "abc",
 			"direct": 1,
 			"content": "test for test",
 			"date": "2014-05-15",
@@ -60,8 +77,6 @@ class shareTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 
 	def test_get_dialog(self):
-		# for init db
-		response = self.client.post(reverse('dialogs:reset'))
 
 		python_dict = {
 			"username": "temp",
