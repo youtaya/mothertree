@@ -37,6 +37,7 @@ def list_contains_record(record_list, record):
 
 	record_id = str(record.id)
 	for next in record_list:
+		logger.debug('record id : %d,%d',%(record_id,next['sid']))
 		if ((next != None) and (next['sid'] == record_id)):
 			return True
 	return False
@@ -49,13 +50,11 @@ def safe_attr(obj, attr_name):
 def get_date(create_date):
 	return datetime.strptime(create_date, "%Y-%m-%d").date()
 
-def process_client_changes(request_url, username, records_buffer, updated_records):
+def process_client_changes(username, records_buffer, updated_records):
 	logger.debug('* Processing client changes')
-	base_url = request_url
 
 	# build an array of generic objects containing contact data,
 	# using the Django built-in JSON parser
-	logger.debug('Uploaded records buffer: ' + smart_unicode(records_buffer))
 	json_list = json.loads(records_buffer)
 	logger.debug('Client-side updates: ' + str(len(json_list)))
 
@@ -104,8 +103,7 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		if(new_record):
 			# new record - add them to db ...
 			new_record_count = new_record_count + 1
-			#record.handle = 'temp'
-			logger.debug('Created new record handle: '+ record.handle)
+
 		record.save()
 		logger.debug('Saved record: '+record.handle)
 
@@ -127,18 +125,16 @@ def process_client_changes(request_url, username, records_buffer, updated_record
 		# to the client (so the client gets the serverId for the
 		# added record)
 		if (new_record):
-			UpdatedRecordData(updated_records, record.handle, client_id, mark_time,
-				base_url, high_water)
+			UpdatedRecordData(updated_records, record.handle, client_id,
+			 	mark_time,	high_water)
 
 	logger.debug('Client-side adds: '+str(new_record_count))
 
 
 
-def get_updated_records(request_url, username, client_state, updated_records):
+def get_updated_records(username, client_state, updated_records):
 	logger.debug('* Processing server changes')
 	timestamp = None
-
-	base_url = request_url
 
 	# the client sends the last high-water-mark that they sucessfully
 	# sync'd to in the syncstate parameter. it's opaque to them, but
@@ -146,7 +142,7 @@ def get_updated_records(request_url, username, client_state, updated_records):
 	# as a baseline.
 	if client_state:
 		logger.debug('Client sync state: '+client_state)
-		timestamp = datetime.utcformattimestamp(float(client_state))
+		timestamp = datetime.utcformattimestamp(long(client_state))
 
 	# keep track of the update/delete counts, so we can log in
 	# below. Makes debugging easier...
@@ -180,14 +176,15 @@ def get_updated_records(request_url, username, client_state, updated_records):
 			handle = record.handle
 			create_time = record.create_time
 			logger.debug("record updated: "+str(record.updated))
-			logger.debug("timestamp: "+str(timestamp))
+			#logger.debug("timestamp: "+str(timestamp))
 			if timestamp is None or record.updated > timestamp:
 				if record.deleted == True:
 					delete_count = delete_count + 1
 					DeletedRecordData(updated_records, handle, create_time, high_water_mark)
 				else:
 					update_count = update_count + 1
-					UpdatedRecordData(updated_records, handle, None, create_time, base_url, high_water_mark)
+					UpdatedRecordData(updated_records, handle, None, create_time,
+						high_water_mark)
 
 	logger.debug('Server-side updates: '+str(update_count))
 	logger.debug('Server-side deletes: '+str(delete_count))
@@ -203,21 +200,17 @@ def sync(request):
 	else:
 		logger.debug("request GET: "+str(request.GET))
 	client_buffer = request.POST.get('records')
-	request_url = request.POST.get('host_url')
 
 	if((client_buffer != None) and (client_buffer != '')):
-		process_client_changes(request_url, username, client_buffer, updated_records)
-
-
+		process_client_changes(username, client_buffer, updated_records)
 
 	# add any records on the server-side
 	client_state = request.POST.get('syncstate')
-	get_updated_records(request_url, username, client_state, updated_records)
+	get_updated_records(username, client_state, updated_records)
 
 	result_records['records'] = updated_records
 	logger.debug("update records are : "+toJSON(result_records))
 	# update latest records
-	#HttpResponse.status(200)
 	return HttpResponse(toJSON(result_records))
 
 def get_visit_records(user_name, friend_name, last_date, records):
@@ -252,13 +245,13 @@ def visit(request):
 
 def addrecord(request):
 	# for test
-	record3 = Time(handle='jinxp',
-		title="test1",
-		content="what's thsis",
+	record3 = Time(handle='tango',
+		title="test",
+		content="what's ths",
 		create_date=timezone.now(),
 		create_time=timezone.now(),
 		content_type=1,
-		link="jinxp",
+		link="juilet",
 		deleted=False)
 	record3.save()
 
@@ -370,7 +363,7 @@ class UpdatedRecordData(object):
 		'client_id': 'cid'
 	}
 
-	def __init__(self, record_list, username, client_id, mark_time, host_url, high_water_mark):
+	def __init__(self, record_list, username, client_id, mark_time, high_water_mark):
 		logger.debug("mark create time: "+mark_time)
 		obj = Time.objects.get(handle=username, create_time=mark_time)
 
@@ -383,7 +376,7 @@ class UpdatedRecordData(object):
 				else:
 					record[json_name] = None
 
-		record['sid'] = str(obj.id)
+		record['sid'] = obj.id
 		record['x'] = high_water_mark
 		logger.debug("mark client id: "+str(client_id))
 		if (client_id != None):
