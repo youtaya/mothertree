@@ -35,9 +35,8 @@ def list_contains_record(record_list, record):
 	if (record is None):
 		return False
 
-	record_id = str(record.id)
+	record_id = record.id
 	for next in record_list:
-		logger.debug('record id : %d,%d',%(record_id,next['sid']))
 		if ((next != None) and (next['sid'] == record_id)):
 			return True
 	return False
