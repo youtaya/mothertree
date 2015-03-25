@@ -142,7 +142,7 @@ def list_contains_record(record_list, record):
 	if (record is None):
 		return False
 
-	record_id = str(record.id)
+	record_id = record.id
 	for next in record_list:
 		if ((next != None) and (next['sid'] == record_id)):
 			return True
@@ -183,7 +183,7 @@ def process_client_changes(request_url, src_user, friends_buffer, updated_friend
 		# if the 'change' for this record is that they were deleted
 		# on the client-side, all we want to do is set the deleted
 		# flag here, and we're done.
-		if(safe_attr(jrecord,'d') == True):
+		if(safe_attr(jrecord,'d') == 1):
 			record.deleted = True
 			record.save()
 			logger.debug('Deleted record: '+record.handle)
@@ -196,7 +196,10 @@ def process_client_changes(request_url, src_user, friends_buffer, updated_friend
 		else:
 			record.mobile_phone = safe_attr(jrecord, 'p')
 		record.avatar = safe_attr(jrecord, 'a')
-		record.description = safe_attr(jrecord, 'd')
+		if(safe_attr(jrecord, 'd') != None):
+			record.description = safe_attr(jrecord, 'd')
+		else:
+			record.description = "comment"
 
 		record.deleted = (safe_attr(jrecord, 'd') == 'true')
 		if(new_record):
@@ -240,7 +243,7 @@ def get_updated_friends(request_url, src_user, client_state, updated_friends):
 	# as a baseline.
 	if client_state:
 		logger.debug('Client sync state: '+client_state)
-		timestamp = datetime.utcformattimestamp(float(client_state))
+		timestamp = datetime.utcformattimestamp(long(client_state))
 
 	# keep track of the update/delete counts, so we can log in
 	# below. Makes debugging easier...
@@ -319,6 +322,7 @@ class UpdatedRecordData(object):
 	This class knows how to serialize itself to JSON.
 	"""
 	__FIELD_MAP = {
+		'handle': 'h',
 		'username': 'u',
 		'mobile_phone': 'p',
 		'avatar': 'a',
@@ -338,7 +342,7 @@ class UpdatedRecordData(object):
 				else:
 					record[json_name] = None
 
-		record['sid'] = str(obj.id)
+		record['sid'] = obj.id
 		record['x'] = high_water_mark
 		logger.debug("mark client id: "+str(client_id))
 		if (client_id != None):
