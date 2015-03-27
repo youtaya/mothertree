@@ -133,7 +133,8 @@ def process_client_share(records_buffer, username, target_handle):
     record.save()
     logger.debug('Saved record: '+record.handle)
     push_data = {}
-    push_data['username'] = username
+    push_data['sender'] = username
+    push_data['linker'] = target_handle
     push_data['id'] = record.id
     jpush_send_message(push_data, target_handle, 1001)
 
