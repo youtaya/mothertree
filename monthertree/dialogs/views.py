@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from utils.packed_json import toJSON
+from utils.packed_json import toJSON, get_date
 import json
 import time as _time
 from datetime import datetime
@@ -62,7 +62,7 @@ class PackDialogData(object):
 				else:
 					pack_data[json_name] = None
 
-		pack_data['sid'] = str(dialog_item.id)
+		pack_data['sid'] = dialog_item.id
 		#pack_data['x'] = high_water_mark
 
 def get_dialog(request):
@@ -98,12 +98,12 @@ def process_client_anonymous_share(records_buffer, username):
     logger.debug('record username: ' + username)
     record.sender = safe_attr(jrecord, 'sender')
     record.link = others.username
-    record.create_date = timezone.now()
-    record.create_time = timezone.now()
+    record.create_date = get_date(safe_attr(jrecord, 'date'))
+    record.create_time = safe_attr(jrecord, 'time')
     record.content_type = safe_attr(jrecord, 'ctx')
     record.photo = safe_attr(jrecord, 'po')
     record.audio = safe_attr(jrecord, 'ao')
-    record.deleted = (safe_attr(jrecord, 'del') == 'true')
+    record.deleted = (safe_attr(jrecord, 'del') == 1)
 
     record.save()
     logger.debug('Saved record: '+record.handle)
@@ -123,12 +123,12 @@ def process_client_share(records_buffer, username, target_handle):
     logger.debug('record username: ' + username)
     record.sender = safe_attr(jrecord, 'sender')
     record.link = safe_attr(jrecord, 'link')
-    record.create_date = timezone.now()
-    record.create_time = timezone.now()
+    record.create_date = get_date(safe_attr(jrecord, 'date'))
+    record.create_time = safe_attr(jrecord, 'time')
     record.content_type = safe_attr(jrecord, 'ctx')
     record.photo = safe_attr(jrecord, 'po')
     record.audio = safe_attr(jrecord, 'ao')
-    record.deleted = (safe_attr(jrecord, 'del') == 'true')
+    record.deleted = (safe_attr(jrecord, 'del') == 1)
 
     record.save()
     logger.debug('Saved record: '+record.handle)
