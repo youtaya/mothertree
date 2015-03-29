@@ -10,4 +10,5 @@ def jpush_send_message(push_data, push_target, id):
 	)
 	push.message = jpush.message(msg_content=id, extras=push_data)
 	push.platform = jpush.all_
+	push.options = {"time_to_live":86400}
 	push.send()
