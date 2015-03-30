@@ -6,6 +6,7 @@ class UserInfoAdmin(admin.ModelAdmin):
 	fieldsets = [
 		('user', {'fields':['user']}),
 		('nickname', {'fields': ['nickname']}),
+		('avatar', {'fields': ['avatar']}),
 	]
-    
+
 admin.site.register(UserInfo, UserInfoAdmin)

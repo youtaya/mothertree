@@ -12,6 +12,8 @@ from django.contrib.auth.models import User
 from users.models import UserInfo
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+from forms import UploadFileForm
 import logging
 
 logger = logging.getLogger(__name__)
@@ -79,11 +81,19 @@ def add_avatar(request):
 	if request.method == "POST":
 		form = UploadFileForm(request.POST, request.FILES)
 		logger.debug("[photo]request POST form: "+ str(request.POST))
+		logger.debug("[photo]request FILES form: "+ str(request.FILES))
+
+		#user_name = request.POST.get('username')
+		#logger.debug("user name: "+user_name)
 		if form.is_valid() and form.is_multipart():
 			logger.debug("[photo]upload image: "+str(request.FILES))
 			save_file(request.FILES['image'])
 
 			#save image path to avatar url
+			#client_user = User.objects.get(username = user_name)
+			#client_info = UserInfo.objects.get(user=client_user)
+			#client_info.avatar.url = user_name
+
 			return HttpResponse(200)
 		else:
 			return HttpResponse('invalid image')
