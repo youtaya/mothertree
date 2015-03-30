@@ -8,5 +8,7 @@ urlpatterns = patterns('',
 
 	url(r'^signup/$', views.signup, name='signup'),
 	url(r'^login/$', views.login, name="login"),
+	url(r'^add_avatar/$', views.add_avatar, name="add_avatar"),
+	url(r'^get_avatar/$', views.get_avatar, name="get_avatar"),
 	url(r'^search_people/$', views.search_people, name="search_people"),
 )
