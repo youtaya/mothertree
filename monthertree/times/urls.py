@@ -12,6 +12,6 @@ urlpatterns = patterns('',
 	url(r'^add/$', views.addrecord, name="add"),
 	url(r'^visit/$', views.visit, name="visit"),
 	url(r'^photo/$', views.photo, name="photo"),
-	url(r'^photoView/(?P<image_name>\d+)/$', views.photoView, name="photoView"),
+	url(r'^photoView/(?P<image_name>.*)/$', views.photoView, name="photoView"),
 	url(r'^photoView/$', views.photoView2, name="photoView2"),
 )

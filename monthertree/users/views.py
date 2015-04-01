@@ -74,7 +74,6 @@ def login(request):
 	data['status']=503
 	return HttpResponse(toJSON(data))
 
-@csrf_exempt
 def add_avatar(request):
 	#get image from client
 	#save image to media folder
