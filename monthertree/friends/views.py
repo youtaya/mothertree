@@ -22,8 +22,8 @@ def recommend(request):
 			continue
 		logger.debug("friend is : %s" %friend.username)
 		recommend = {
-			'friends': friend.username,
-			'avatar_url', friend.avatar.url,}
+			'u': friend.username,
+			'a', friend.avatar.url,}
 
 		recommend_friends.append(recommend)
 	return HttpResponse(toJSON(recommend_friends))
