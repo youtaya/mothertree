@@ -6,6 +6,7 @@ class Friend(models.Model):
 	handle = models.ForeignKey(User)
 	username = models.CharField(max_length=200)
 	mobile_phone = models.CharField(max_length=200)
+	# redundant model for user already contain avatar
 	avatar = models.ImageField(upload_to='avatar')
 	verify_status = models.IntegerField(default=0)
 	name_comment = models.CharField(max_length=200)

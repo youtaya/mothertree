@@ -21,7 +21,10 @@ def recommend(request):
 		if(friend.username == "root"):
 			continue
 		logger.debug("friend is : %s" %friend.username)
-		recommend = {'friends': friend.username}
+		recommend = {
+			'friends': friend.username,
+			'avatar_url', friend.avatar.url,}
+
 		recommend_friends.append(recommend)
 	return HttpResponse(toJSON(recommend_friends))
 
