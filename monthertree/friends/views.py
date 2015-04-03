@@ -21,9 +21,10 @@ def recommend(request):
 		if(friend.username == "root"):
 			continue
 		logger.debug("friend is : %s" %friend.username)
+		friend_info = UserInfo.objects.get(user=friend)
 		recommend = {}
 		recommend['u'] = friend.username
-		recommend['a'] = friend.avatar.url
+		recommend['a'] = friend_info.avatar.url
 
 		recommend_friends.append(recommend)
 	return HttpResponse(toJSON(recommend_friends))
