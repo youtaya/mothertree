@@ -45,8 +45,10 @@ def signup(request):
 			data['error']='username already used'
 			return HttpResponse(toJSON(data))
 		except ObjectDoesNotExist:
-			user=User(username=user_name,password=password,is_staff=False,is_active=True,is_superuser=False)
-			user.save()
+			new_user=User(username=user_name,password=password,is_staff=False,is_active=True,is_superuser=False)
+			new_user.save()
+			# add user info
+			user_info = UserInfo(user=new_user)
 			data['status']=0
 			return HttpResponse(toJSON(data))
 
@@ -140,7 +142,7 @@ def search_people(request):
 				record = {}
 				record['nick_name'] = get_friend.nickname
 				# TODO: fix it
-				record['avatar_url'] = ""
+				record['avatar_url'] = get_friend.avatar_url()
 				record['user_name'] = friend.username
 
 				record_list.append(record)

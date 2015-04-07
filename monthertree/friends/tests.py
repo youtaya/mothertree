@@ -20,7 +20,7 @@ class friendsTests(TestCase):
 		response = self.client.get(reverse('friends:recommend'))
 		json_list = json.loads(response.content)
 		for friend in json_list:
-			self.assertEqual(friend['friends'], 0)
+			self.assertEqual(friend, 0)
 
 	def test_add_friend(self):
 		json_data = {

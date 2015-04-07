@@ -24,7 +24,7 @@ def recommend(request):
 		friend_info = UserInfo.objects.get(user=friend)
 		recommend = {}
 		recommend['u'] = friend.username
-		recommend['a'] = friend_info.avatar.url
+		recommend['a'] = friend_info.avatar_url()
 
 		recommend_friends.append(recommend)
 	return HttpResponse(toJSON(recommend_friends))
