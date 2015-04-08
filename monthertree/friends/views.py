@@ -15,7 +15,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 def recommend(request):
-	recommend_friends = []
+	recommend_friends = {}
+	friend_list = []
 	friends = User.objects.all()
 	for friend in friends:
 		if(friend.username == "root"):
@@ -26,7 +27,10 @@ def recommend(request):
 		recommend['u'] = friend.username
 		recommend['a'] = friend_info.avatar_url()
 
-		recommend_friends.append(recommend)
+		friend_list.append(recommend)
+
+	recommend_friends['recommend'] = friend_list
+	
 	return HttpResponse(toJSON(recommend_friends))
 
 def add_friend(request):
