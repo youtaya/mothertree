@@ -30,7 +30,7 @@ def recommend(request):
 		friend_list.append(recommend)
 
 	recommend_friends['recommend'] = friend_list
-	
+
 	return HttpResponse(toJSON(recommend_friends))
 
 def add_friend(request):
@@ -56,12 +56,12 @@ def add_friend(request):
 			add_user_info = UserInfo.objects.get(user=add_user)
 
 			try:
-				check_friend = Friend.objects.get(handle=src_user, username=target_user)
+				check_friend = Friend.objects.get(handle=src_user, friend=add_user_info)
 
 				logger.debug("friend already add, skip it")
 
 			except ObjectDoesNotExist:
-				wait_friend = Friend.objects.create(handle = src_user, username=target_user)
+				wait_friend = Friend.objects.create(handle = src_user, friend=add_user_info)
 				wait_friend.verify_status = 2
 				wait_friend.save()
 
@@ -95,7 +95,9 @@ def accept_friend(request):
 
 		try:
 			target = User.objects.get(username=target_user)
-			friend = Friend.objects.get(handle=target,username=user_name)
+			origin = User.objects.get(username=user_name)
+			origin_target = UserInfo.objects.get(user=origin)
+			friend = Friend.objects.get(handle=target,friend=origin_target)
 			if(nok is 1):
 				# change friend verify status
 				friend.verify_status = 1
@@ -106,7 +108,7 @@ def accept_friend(request):
 
 			push_data = {}
 			push_data['user_name'] = user_name
-			jpush_send_message(toJSON(push_data), target_user, 1002)
+			jpush_send_message(toJSON(push_data), target_user, 1003)
 
 			data['status']=0
 			return HttpResponse(toJSON(data))
@@ -130,7 +132,9 @@ def update_friend(request):
 			src_user = User.objects.get(username = user_name)
 			src_user_info = UserInfo.objects.get(user=src_user)
 			logger.debug("friend description is "+descrip)
-			my_friend = Friend.objects.get(handle=src_user,username=target_user)
+			update_user = User.objects.get(username=target_user)
+			update_user_info = UserInfo.objects.get(user=update_user)
+			my_friend = Friend.objects.get(handle=src_user,friend=update_user_info)
 
 			# set breakpoint to trace
 			#import pdb; pdb.set_trace()
@@ -198,12 +202,8 @@ def process_client_changes(request_url, src_user, friends_buffer, updated_friend
 			continue
 
 		record.handle = src_user
-		record.username = safe_attr(jrecord, 'u')
-		if(safe_attr(jrecord,'p') == None):
-			record.mobile_phone = "123"
-		else:
-			record.mobile_phone = safe_attr(jrecord, 'p')
-		record.avatar = safe_attr(jrecord, 'a')
+		record.username = safe_attr(jrecord, 'f')
+
 		if(safe_attr(jrecord, 'd') != None):
 			record.description = safe_attr(jrecord, 'd')
 		else:
@@ -331,9 +331,7 @@ class UpdatedRecordData(object):
 	"""
 	__FIELD_MAP = {
 		'handle': 'h',
-		'username': 'u',
-		'mobile_phone': 'p',
-		'avatar': 'a',
+		'friend': 'f',
 		'description': 'd',
 		'client_id': 'cid'
 	}

@@ -64,7 +64,6 @@ class friendsTests(TestCase):
 			{
 				"h": "12345993",
 				"u": "james",
-				"p": "123456789",
 				"cid": 5,
 				"dirty": 'true',
 				"d": 'false',
@@ -72,7 +71,6 @@ class friendsTests(TestCase):
 			{
 				"h": "12345993",
 				"u": "amrk",
-				"p": "0569786321",
 				"cid": 6,
 				"dirty": 'true',
 				"d": 'false',
@@ -93,5 +91,8 @@ class friendsTests(TestCase):
 
 		test1 = User.objects.get(username='12345993')
 		dog = UserInfo.objects.get(user=test1)
-		cat = Friend.objects.create(handle=test1,mobile_phone='02513636630387', username='13636630387')
-		cow = Friend.objects.create(handle=test1,mobile_phone='02513636630388', username='13636630388')
+
+		user2 = User.objects.get(username='13636630387')
+		rabbit = UserInfo.objects.get(user=user2)
+
+		cat = Friend.objects.create(handle=test1,friend=rabbit)

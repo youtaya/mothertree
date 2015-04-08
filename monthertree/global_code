@@ -11,4 +11,5 @@ RESPONSE:
 
 PUSH CODE:
 1001 handle dialog
-1002 handle friend
+1002 add friend
+1003 accept friend
