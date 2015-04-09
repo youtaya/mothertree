@@ -18,9 +18,7 @@ class friendsTests(TestCase):
 
 	def test_recommend(self):
 		response = self.client.get(reverse('friends:recommend'))
-		json_list = json.loads(response.content)
-		for friend in json_list:
-			self.assertEqual(friend, 0)
+		self.assertEqual(response.content, "ok")
 
 	def test_add_friend(self):
 		json_data = {
@@ -95,4 +93,4 @@ class friendsTests(TestCase):
 		user2 = User.objects.get(username='13636630387')
 		rabbit = UserInfo.objects.get(user=user2)
 
-		cat = Friend.objects.create(handle=test1,friend=rabbit)
+		Friend.objects.create(handle=test1,friend=user2)
