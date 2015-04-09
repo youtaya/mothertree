@@ -4,6 +4,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 import json
 from utils.packed_json import toJSON
 import time
+import random
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
@@ -15,7 +16,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from forms import UploadFileForm
 import logging
-
 logger = logging.getLogger(__name__)
 
 def signup(request):
@@ -49,12 +49,19 @@ def signup(request):
 			new_user.save()
 			# add user info
 			user_info = UserInfo(user=new_user)
+			user_info.nickname = randName()
+			user_info.save()
 			data['status']=0
 			return HttpResponse(toJSON(data))
 
 	data['status']=404
 	return HttpResponse(toJSON(data))
 
+
+def randName():
+	names = ["monday","thursday","friday","sunday"]
+	choose = random.randint(0, len(names)-1)
+	return names[choose]
 
 def login(request):
 	data={}
