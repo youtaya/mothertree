@@ -14,7 +14,7 @@ class Friend(models.Model):
 
 
 	def __unicode__(self):
-		return self.username
+		return self.handle.username
 
 	def get_friend_info(self):
 		data = {}
