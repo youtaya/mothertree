@@ -62,7 +62,8 @@ def add_friend(request):
 				wait_friend.save()
 
 				push_data = {}
-				push_data['user_name'] = user_name
+				push_data = wait_friend.get_friend_info()
+				logger.debug("friend info : "+str(push_data))
 				jpush_send_message(toJSON(push_data), target_user, 1002)
 
 			data['status']=0
